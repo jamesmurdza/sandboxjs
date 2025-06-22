@@ -1,5 +1,5 @@
-import { Daytona, Sandbox, SandboxState } from '@daytonaio/sdk';
-import { BaseSandbox, FileEntry, BaseTerminal } from './BaseSandbox.js';
+import { Daytona, Sandbox, SandboxState } from "@daytonaio/sdk";
+import { BaseSandbox, FileEntry, BaseTerminal } from "./BaseSandbox.js";
 
 export class DaytonaSandbox implements BaseSandbox {
   private daytona: Daytona;
@@ -13,7 +13,7 @@ export class DaytonaSandbox implements BaseSandbox {
     if (id) {
       this.sandbox = await this.daytona.get(id);
       if (!this.sandbox) {
-        throw new Error('Sandbox not found');
+        throw new Error("Sandbox not found");
       }
     } else {
       this.sandbox = await this.daytona.create();
@@ -28,7 +28,7 @@ export class DaytonaSandbox implements BaseSandbox {
       await this.initialize();
     }
     if (!this.sandbox) {
-      throw new Error('Failed to initialize sandbox');
+      throw new Error("Failed to initialize sandbox");
     }
     const response = await this.sandbox.process.executeCommand(command);
     return response.result;
@@ -36,14 +36,14 @@ export class DaytonaSandbox implements BaseSandbox {
 
   id(): string {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     return this.sandbox.id;
   }
 
   async pause(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     if (this.sandbox.state == SandboxState.STARTED) {
       await this.sandbox.stop();
@@ -53,7 +53,7 @@ export class DaytonaSandbox implements BaseSandbox {
 
   async resume(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     if (this.sandbox.state == SandboxState.STOPPED) {
       await this.sandbox.start();
@@ -63,7 +63,7 @@ export class DaytonaSandbox implements BaseSandbox {
 
   async destroy(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.delete();
     this.sandbox = null;
@@ -71,7 +71,7 @@ export class DaytonaSandbox implements BaseSandbox {
 
   async readFile(path: string): Promise<string> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     const response = await this.sandbox.fs.downloadFile(path);
     return response.toString();
@@ -79,32 +79,32 @@ export class DaytonaSandbox implements BaseSandbox {
 
   async writeFile(path: string, content: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.fs.uploadFile(Buffer.from(content), path);
   }
 
   async listFiles(path: string): Promise<FileEntry[]> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     const response = await this.sandbox.fs.listFiles(path);
     return response.map((file) => ({
-      type: file.isDir ? 'directory' : 'file',
-      name: file.name
+      type: file.isDir ? "directory" : "file",
+      name: file.name,
     }));
   }
 
   async moveFile(path: string, newPath: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.fs.moveFiles(path, newPath);
   }
 
   async deleteFile(path: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     const fileDetails = await this.sandbox.fs.getFileDetails(path);
     if (fileDetails.isDir) {
@@ -116,21 +116,23 @@ export class DaytonaSandbox implements BaseSandbox {
 
   async createDirectory(path: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.fs.createFolder(path, "755");
   }
 
   async getPreviewUrl(port: number): Promise<string> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     return (await this.sandbox.getPreviewLink(port)).url;
   }
 
-  async createTerminal(onOutput: (output: string) => void): Promise<BaseTerminal> {
+  async createTerminal(
+    onOutput: (output: string) => void
+  ): Promise<BaseTerminal> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     return new DaytonaTerminal();
   }
@@ -139,15 +141,14 @@ export class DaytonaSandbox implements BaseSandbox {
 class DaytonaTerminal implements BaseTerminal {
   write(data: string): Promise<void> {
     // Stub
-    return Promise.resolve()
+    return Promise.resolve();
   }
   resize(cols: number, rows: number): Promise<void> {
     // Stub
-    return Promise.resolve()
+    return Promise.resolve();
   }
   kill(): Promise<void> {
     // Stub
-    return Promise.resolve()
+    return Promise.resolve();
   }
 }
-  

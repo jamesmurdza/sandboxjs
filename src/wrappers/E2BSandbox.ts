@@ -1,5 +1,5 @@
-import { Sandbox, CommandHandle } from '@e2b/code-interpreter';
-import { BaseSandbox, FileEntry, BaseTerminal } from './BaseSandbox.js';
+import { Sandbox, CommandHandle } from "@e2b/code-interpreter";
+import { BaseSandbox, FileEntry, BaseTerminal } from "./BaseSandbox.js";
 
 export class E2BSandbox implements BaseSandbox {
   protected sandbox: Sandbox | null = null;
@@ -17,7 +17,7 @@ export class E2BSandbox implements BaseSandbox {
       await this.initialize();
     }
     if (!this.sandbox) {
-      throw new Error('Failed to initialize sandbox');
+      throw new Error("Failed to initialize sandbox");
     }
     const result = await this.sandbox.commands.run(command);
     return result.stdout;
@@ -25,7 +25,7 @@ export class E2BSandbox implements BaseSandbox {
 
   id(): string {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     return this.sandbox.sandboxId;
   }
@@ -36,7 +36,7 @@ export class E2BSandbox implements BaseSandbox {
 
   async resume(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     if (!this.sandbox.isRunning()) {
       await Sandbox.connect(this.id());
@@ -45,7 +45,7 @@ export class E2BSandbox implements BaseSandbox {
 
   async destroy(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.kill();
     this.sandbox = null;
@@ -53,61 +53,62 @@ export class E2BSandbox implements BaseSandbox {
 
   async readFile(path: string): Promise<string> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     return await this.sandbox.files.read(path);
   }
 
   async writeFile(path: string, content: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.files.write(path, content);
   }
 
   async listFiles(path: string): Promise<FileEntry[]> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     const entries = await this.sandbox.files.list(path);
     return entries.map((entry) => ({
-        type: entry.type === "dir" ? "directory" : "file",
-        name: entry.name
-      })
-    )
+      type: entry.type === "dir" ? "directory" : "file",
+      name: entry.name,
+    }));
   }
 
   async deleteFile(path: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.files.remove(path);
   }
 
   async moveFile(path: string, newPath: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.files.rename(path, newPath);
   }
 
   async createDirectory(path: string): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     await this.sandbox.files.makeDir(path);
   }
 
   async getPreviewUrl(port: number): Promise<string> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     return this.sandbox.getHost(port);
   }
 
-  async createTerminal(onOutput: (output: string) => void): Promise<BaseTerminal> {
+  async createTerminal(
+    onOutput: (output: string) => void
+  ): Promise<BaseTerminal> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not connected');
+      throw new Error("Sandbox not connected");
     }
     const terminal = new E2BTerminal(this.sandbox);
     await terminal.init(onOutput);
@@ -136,7 +137,7 @@ export class E2BTerminal implements BaseTerminal {
 
   async write(data: string): Promise<void> {
     if (!this.pty) {
-      throw new Error('Terminal is not initialized');
+      throw new Error("Terminal is not initialized");
     }
     await this.sandbox.pty.sendInput(
       this.pty.pid,
@@ -146,7 +147,7 @@ export class E2BTerminal implements BaseTerminal {
 
   async resize(cols: number, rows: number): Promise<void> {
     if (!this.pty) {
-      throw new Error('Terminal is not initialized');
+      throw new Error("Terminal is not initialized");
     }
     await this.sandbox.pty.resize(this.pty.pid, { cols, rows });
   }

@@ -1,10 +1,15 @@
-import { CodeSandbox as CodeSandboxSDK, Sandbox, ReaddirEntry, Terminal } from '@codesandbox/sdk';
-import dotenv from 'dotenv';
-import { BaseSandbox, FileEntry, BaseTerminal } from './BaseSandbox.js';
+import {
+  CodeSandbox as CodeSandboxSDK,
+  Sandbox,
+  ReaddirEntry,
+  Terminal,
+} from "@codesandbox/sdk";
+import dotenv from "dotenv";
+import { BaseSandbox, FileEntry, BaseTerminal } from "./BaseSandbox.js";
 
 dotenv.config();
 
-type SandboxSession = Awaited<ReturnType<Sandbox['connect']>>;
+type SandboxSession = Awaited<ReturnType<Sandbox["connect"]>>;
 
 export class CodeSandbox implements BaseSandbox {
   private sdk: CodeSandboxSDK;
@@ -16,7 +21,9 @@ export class CodeSandbox implements BaseSandbox {
   constructor() {
     const apiKey = process.env.CODESANDBOX_API_KEY;
     if (!apiKey) {
-      throw new Error('CODESANDBOX_API_KEY is not set in environment variables');
+      throw new Error(
+        "CODESANDBOX_API_KEY is not set in environment variables"
+      );
     }
     this.sdk = new CodeSandboxSDK(apiKey);
   }
@@ -42,10 +49,10 @@ export class CodeSandbox implements BaseSandbox {
     }
     this.session = await this.sandbox.connect();
   }
-  
+
   private async ensureSession(): Promise<SandboxSession> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not initialized');
+      throw new Error("Sandbox not initialized");
     }
     if (!this.session) {
       this.session = await this.sandbox.connect();
@@ -60,21 +67,21 @@ export class CodeSandbox implements BaseSandbox {
 
   id(): string {
     if (!this.sandbox) {
-      throw new Error('Sandbox not initialized');
+      throw new Error("Sandbox not initialized");
     }
     return this.sandbox.id;
   }
 
   async pause(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not initialized');
+      throw new Error("Sandbox not initialized");
     }
     await this.sdk.sandboxes.hibernate(this.sandbox.id);
   }
 
   async resume(): Promise<void> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not initialized');
+      throw new Error("Sandbox not initialized");
     }
     await this.sdk.sandboxes.resume(this.sandbox.id);
   }
@@ -86,7 +93,7 @@ export class CodeSandbox implements BaseSandbox {
       this.session.dispose();
       this.session = null;
     }
-    // CodeSandbox does not provide a method to delete a sandbox  
+    // CodeSandbox does not provide a method to delete a sandbox
     this.sandbox = null;
   }
 
@@ -105,7 +112,7 @@ export class CodeSandbox implements BaseSandbox {
     const result = await session.fs.readdir(path);
     return result.map((entry: ReaddirEntry) => ({
       type: entry.type,
-      name: entry.name
+      name: entry.name,
     }));
   }
 
@@ -126,13 +133,15 @@ export class CodeSandbox implements BaseSandbox {
 
   async getPreviewUrl(port: number): Promise<string> {
     if (!this.sandbox) {
-      throw new Error('Sandbox not initialized');
+      throw new Error("Sandbox not initialized");
     }
     const session = await this.ensureSession();
     return await session.hosts.getUrl(port);
   }
 
-  async createTerminal(onOutput: (output: string) => void): Promise<BaseTerminal> {
+  async createTerminal(
+    onOutput: (output: string) => void
+  ): Promise<BaseTerminal> {
     const session = await this.ensureSession();
     return await CodesandboxTerminal.create(session, onOutput);
   }
@@ -145,7 +154,10 @@ export class CodesandboxTerminal implements BaseTerminal {
     this.terminal = terminal;
   }
 
-  static async create(session: SandboxSession, onOutput: (output: string) => void): Promise<CodesandboxTerminal> {
+  static async create(
+    session: SandboxSession,
+    onOutput: (output: string) => void
+  ): Promise<CodesandboxTerminal> {
     const terminal = await session.terminals.create();
     terminal.onOutput(onOutput);
     return new CodesandboxTerminal(terminal);

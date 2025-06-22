@@ -1,7 +1,7 @@
 export type FileEntry = {
-    type: 'directory' | 'file';
-    name: string;
-}
+  type: "directory" | "file";
+  name: string;
+};
 
 export interface BaseSandbox {
   // Execute a command in the sandbox and return its output

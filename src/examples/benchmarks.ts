@@ -1,4 +1,4 @@
-import { Sandbox, providers } from '../index.js';
+import { Sandbox, providers } from "../index.js";
 
 async function runExample(provider: string) {
   const times = {
@@ -47,7 +47,7 @@ async function runExample(provider: string) {
       pause: average(times.pause),
       resume: average(times.resume),
       destroy: average(times.destroy),
-    }
+    },
   };
 }
 
@@ -57,12 +57,12 @@ function average(arr: number[]) {
 
 async function main() {
   const results = [];
-    const result = await runExample("daytona");
-    results.push(result);
+  const result = await runExample("daytona");
+  results.push(result);
 
   console.log("\n--- Average Times (ms) ---");
   console.table(
-    results.map(r => ({
+    results.map((r) => ({
       Provider: r.provider,
       Create: r.averages.create.toFixed(2),
       Pause: r.averages.pause.toFixed(2),
