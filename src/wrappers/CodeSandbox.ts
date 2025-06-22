@@ -80,12 +80,12 @@ export class CodeSandbox implements BaseSandbox {
   }
 
   async destroy(): Promise<void> {
+    await this.pause();
     if (this.session) {
       await this.session.disconnect();
       this.session.dispose();
       this.session = null;
     }
-    await this.pause();
     // CodeSandbox does not provide a method to delete a sandbox  
     this.sandbox = null;
   }
