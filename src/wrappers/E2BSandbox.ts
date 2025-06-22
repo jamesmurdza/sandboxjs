@@ -24,10 +24,6 @@ export class E2BSandbox implements BaseSandbox {
   }
 
   id(): string {
-    return this.getSandboxId();
-  }
-
-  protected getSandboxId(): string {
     if (!this.sandbox) {
       throw new Error('Sandbox not connected');
     }
@@ -43,7 +39,7 @@ export class E2BSandbox implements BaseSandbox {
       throw new Error('Sandbox not connected');
     }
     if (!this.sandbox.isRunning()) {
-      await Sandbox.connect(this.getSandboxId());
+      await Sandbox.connect(this.id());
     }
   }
 
