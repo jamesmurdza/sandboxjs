@@ -1,12 +1,12 @@
-import { Daytona, Sandbox, SandboxState } from "@daytonaio/sdk";
-import { BaseSandbox, FileEntry, BaseTerminal } from "./BaseSandbox.js";
+import * as Daytona from "@daytonaio/sdk";
+import { Sandbox, FileEntry, Terminal } from "./index.js";
 
-export class DaytonaSandbox implements BaseSandbox {
-  private daytona: Daytona;
-  protected sandbox: Sandbox | null = null;
+export class DaytonaSandbox implements Sandbox {
+  private daytona: Daytona.Daytona;
+  protected sandbox: Daytona.Sandbox | null = null;
 
   constructor() {
-    this.daytona = new Daytona();
+    this.daytona = new Daytona.Daytona();
   }
 
   async initialize(id?: string): Promise<void> {
@@ -18,7 +18,7 @@ export class DaytonaSandbox implements BaseSandbox {
     } else {
       this.sandbox = await this.daytona.create();
     }
-    if (this.sandbox.state == SandboxState.STOPPED) {
+    if (this.sandbox.state == Daytona.SandboxState.STOPPED) {
       await this.sandbox.start();
     }
   }
@@ -45,7 +45,7 @@ export class DaytonaSandbox implements BaseSandbox {
     if (!this.sandbox) {
       throw new Error("Sandbox not connected");
     }
-    if (this.sandbox.state == SandboxState.STARTED) {
+    if (this.sandbox.state == Daytona.SandboxState.STARTED) {
       await this.sandbox.stop();
       await this.sandbox.waitUntilStopped();
     }
@@ -55,7 +55,7 @@ export class DaytonaSandbox implements BaseSandbox {
     if (!this.sandbox) {
       throw new Error("Sandbox not connected");
     }
-    if (this.sandbox.state == SandboxState.STOPPED) {
+    if (this.sandbox.state == Daytona.SandboxState.STOPPED) {
       await this.sandbox.start();
       await this.sandbox.waitUntilStarted();
     }
@@ -128,9 +128,7 @@ export class DaytonaSandbox implements BaseSandbox {
     return (await this.sandbox.getPreviewLink(port)).url;
   }
 
-  async createTerminal(
-    onOutput: (output: string) => void
-  ): Promise<BaseTerminal> {
+  async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {
     if (!this.sandbox) {
       throw new Error("Sandbox not connected");
     }
@@ -138,7 +136,7 @@ export class DaytonaSandbox implements BaseSandbox {
   }
 }
 
-class DaytonaTerminal implements BaseTerminal {
+class DaytonaTerminal extends Terminal {
   write(data: string): Promise<void> {
     // Stub
     return Promise.resolve();

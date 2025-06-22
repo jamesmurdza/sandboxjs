@@ -1,14 +1,14 @@
-import { Sandbox, CommandHandle } from "@e2b/code-interpreter";
-import { BaseSandbox, FileEntry, BaseTerminal } from "./BaseSandbox.js";
+import * as E2B from "@e2b/code-interpreter";
+import { Sandbox, FileEntry, Terminal } from "./index.js";
 
-export class E2BSandbox implements BaseSandbox {
-  protected sandbox: Sandbox | null = null;
+export class E2BSandbox extends Sandbox {
+  protected sandbox: E2B.Sandbox | null = null;
 
   async initialize(id?: string): Promise<void> {
     if (id) {
-      this.sandbox = await Sandbox.connect(id);
+      this.sandbox = await E2B.Sandbox.connect(id);
     } else {
-      this.sandbox = await Sandbox.create();
+      this.sandbox = await E2B.Sandbox.create();
     }
   }
 
@@ -42,7 +42,7 @@ export class E2BSandbox implements BaseSandbox {
       throw new Error("Sandbox not connected");
     }
     if (!(await this.sandbox.isRunning())) {
-      await Sandbox.resume(this.id());
+      await E2B.Sandbox.resume(this.id());
     }
   }
 
@@ -107,9 +107,7 @@ export class E2BSandbox implements BaseSandbox {
     return this.sandbox.getHost(port);
   }
 
-  async createTerminal(
-    onOutput: (output: string) => void
-  ): Promise<BaseTerminal> {
+  async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {
     if (!this.sandbox) {
       throw new Error("Sandbox not connected");
     }
@@ -119,11 +117,12 @@ export class E2BSandbox implements BaseSandbox {
   }
 }
 
-export class E2BTerminal implements BaseTerminal {
-  private pty: CommandHandle | undefined;
-  private sandbox: Sandbox;
+export class E2BTerminal extends Terminal {
+  private pty: E2B.CommandHandle | undefined;
+  private sandbox: E2B.Sandbox;
 
-  constructor(sandbox: Sandbox) {
+  constructor(sandbox: E2B.Sandbox) {
+    super();
     this.sandbox = sandbox;
   }
 

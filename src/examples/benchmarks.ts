@@ -1,4 +1,4 @@
-import { Sandbox, providers } from "../index.js";
+import { Sandbox, providers } from "../providers/index.js";
 
 async function runExample(provider: string) {
   const times = {

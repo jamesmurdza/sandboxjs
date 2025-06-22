@@ -1,31 +1,25 @@
-import {
-  CodeSandbox as CodeSandboxSDK,
-  Sandbox,
-  ReaddirEntry,
-  Terminal,
-} from "@codesandbox/sdk";
+import * as CodeSandbox from "@codesandbox/sdk";
 import dotenv from "dotenv";
-import { BaseSandbox, FileEntry, BaseTerminal } from "./BaseSandbox.js";
+import { Sandbox, Terminal, FileEntry } from "../sandbox.js";
 
 dotenv.config();
 
-type SandboxSession = Awaited<ReturnType<Sandbox["connect"]>>;
-
-export class CodeSandbox implements BaseSandbox {
-  private sdk: CodeSandboxSDK;
-  protected sandbox: Sandbox | null = null;
-  private session: SandboxSession | null = null;
+export class CodeSandboxSandbox extends Sandbox {
+  private sdk: CodeSandbox.CodeSandbox;
+  protected sandbox: CodeSandbox.Sandbox | null = null;
+  private session: CodeSandbox.WebSocketSession | null = null;
 
   // We only run synchronous methods in the constructor
   // In the future, we might include async methods and use a ready pattern
   constructor() {
+    super();
     const apiKey = process.env.CODESANDBOX_API_KEY;
     if (!apiKey) {
       throw new Error(
         "CODESANDBOX_API_KEY is not set in environment variables"
       );
     }
-    this.sdk = new CodeSandboxSDK(apiKey);
+    this.sdk = new CodeSandbox.CodeSandbox(apiKey);
   }
 
   // Run asynchronous initialization methods
@@ -50,7 +44,7 @@ export class CodeSandbox implements BaseSandbox {
     this.session = await this.sandbox.connect();
   }
 
-  private async ensureSession(): Promise<SandboxSession> {
+  private async ensureSession(): Promise<CodeSandbox.WebSocketSession> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
     }
@@ -110,7 +104,7 @@ export class CodeSandbox implements BaseSandbox {
   async listFiles(path: string): Promise<FileEntry[]> {
     const session = await this.ensureSession();
     const result = await session.fs.readdir(path);
-    return result.map((entry: ReaddirEntry) => ({
+    return result.map((entry: CodeSandbox.ReaddirEntry) => ({
       type: entry.type,
       name: entry.name,
     }));
@@ -139,28 +133,27 @@ export class CodeSandbox implements BaseSandbox {
     return await session.hosts.getUrl(port);
   }
 
-  async createTerminal(
-    onOutput: (output: string) => void
-  ): Promise<BaseTerminal> {
+  async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {
     const session = await this.ensureSession();
-    return await CodesandboxTerminal.create(session, onOutput);
+    return await CodeSandboxTerminal.create(session, onOutput);
   }
 }
 
-export class CodesandboxTerminal implements BaseTerminal {
-  private terminal: Terminal;
+export class CodeSandboxTerminal extends Terminal {
+  private terminal: CodeSandbox.Terminal;
 
-  constructor(terminal: Terminal) {
+  constructor(terminal: CodeSandbox.Terminal) {
+    super();
     this.terminal = terminal;
   }
 
   static async create(
-    session: SandboxSession,
+    session: CodeSandbox.WebSocketSession,
     onOutput: (output: string) => void
-  ): Promise<CodesandboxTerminal> {
+  ): Promise<CodeSandboxTerminal> {
     const terminal = await session.terminals.create();
     terminal.onOutput(onOutput);
-    return new CodesandboxTerminal(terminal);
+    return new CodeSandboxTerminal(terminal);
   }
 
   async write(command: string): Promise<void> {

@@ -1,0 +1,59 @@
+import { Provider, providerRegistry } from "./providers/index.js";
+
+export type FileEntry = {
+  type: "directory" | "file";
+  name: string;
+};
+
+export abstract class Sandbox {
+  static async create(provider: Provider) {
+    const instance = new providerRegistry[provider]();
+    await instance.initialize();
+    return instance;
+  }
+  static async connect(provider: Provider, id: string) {
+    const instance = new providerRegistry[provider]();
+    await instance.initialize(id);
+    return instance;
+  }
+
+  // Execute a command in the sandbox and return its output
+  abstract run(command: string): Promise<string>;
+
+  // Get the sandbox ID
+  abstract id(): string;
+
+  // Initialize a new sandbox instance
+  abstract initialize(id?: string): Promise<void>;
+
+  // Pause the sandbox
+  abstract pause(): Promise<void>;
+
+  // Resume the sandbox
+  abstract resume(): Promise<void>;
+
+  // Stop and destroy the sandbox
+  abstract destroy(): Promise<void>;
+
+  // File operations
+  abstract readFile(path: string): Promise<string>;
+  abstract writeFile(path: string, content: string): Promise<void>;
+  abstract listFiles(path: string): Promise<Array<FileEntry>>;
+  abstract moveFile(path: string, newPath: string): Promise<void>;
+  abstract deleteFile(path: string): Promise<void>;
+  abstract createDirectory(path: string): Promise<void>;
+
+  // Preview URL
+  abstract getPreviewUrl(port: number): Promise<string>;
+
+  // Terminal operations
+  abstract createTerminal(
+    onOutput: (output: string) => void
+  ): Promise<Terminal>;
+}
+
+export abstract class Terminal {
+  abstract write(data: string): Promise<void>;
+  abstract resize(cols: number, rows: number): Promise<void>;
+  abstract kill(): Promise<void>;
+}
