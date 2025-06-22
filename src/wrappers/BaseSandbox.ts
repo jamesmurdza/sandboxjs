@@ -32,4 +32,13 @@ export interface BaseSandbox {
 
   // Preview URL
   getPreviewUrl(port: number): Promise<string>;
+
+  // Terminal operations
+  createTerminal(onOutput: (output: string) => void): Promise<BaseTerminal>;
+}
+
+export interface BaseTerminal {
+  write(data: string): Promise<void>;
+  resize(cols: number, rows: number): Promise<void>;
+  kill(): Promise<void>;
 }

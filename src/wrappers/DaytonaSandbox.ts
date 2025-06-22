@@ -1,5 +1,5 @@
 import { Daytona, Sandbox, SandboxState } from '@daytonaio/sdk';
-import { BaseSandbox, FileEntry } from './BaseSandbox.js';
+import { BaseSandbox, FileEntry, BaseTerminal } from './BaseSandbox.js';
 
 export class DaytonaSandbox implements BaseSandbox {
   private daytona: Daytona;
@@ -127,4 +127,27 @@ export class DaytonaSandbox implements BaseSandbox {
     }
     return (await this.sandbox.getPreviewLink(port)).url;
   }
+
+  async createTerminal(onOutput: (output: string) => void): Promise<BaseTerminal> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    return new DaytonaTerminal();
+  }
 }
+
+class DaytonaTerminal implements BaseTerminal {
+  write(data: string): Promise<void> {
+    // Stub
+    return Promise.resolve()
+  }
+  resize(cols: number, rows: number): Promise<void> {
+    // Stub
+    return Promise.resolve()
+  }
+  kill(): Promise<void> {
+    // Stub
+    return Promise.resolve()
+  }
+}
+  

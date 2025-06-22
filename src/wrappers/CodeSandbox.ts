@@ -1,6 +1,6 @@
-import { CodeSandbox as CodeSandboxSDK, Sandbox, ReaddirEntry } from '@codesandbox/sdk';
+import { CodeSandbox as CodeSandboxSDK, Sandbox, ReaddirEntry, Terminal } from '@codesandbox/sdk';
 import dotenv from 'dotenv';
-import { BaseSandbox, FileEntry } from './BaseSandbox.js';
+import { BaseSandbox, FileEntry, BaseTerminal } from './BaseSandbox.js';
 
 dotenv.config();
 
@@ -131,4 +131,35 @@ export class CodeSandbox implements BaseSandbox {
     const session = await this.ensureSession();
     return await session.hosts.getUrl(port);
   }
-} 
+
+  async createTerminal(onOutput: (output: string) => void): Promise<BaseTerminal> {
+    const session = await this.ensureSession();
+    return await CodesandboxTerminal.create(session, onOutput);
+  }
+}
+
+export class CodesandboxTerminal implements BaseTerminal {
+  private terminal: Terminal;
+
+  constructor(terminal: Terminal) {
+    this.terminal = terminal;
+  }
+
+  static async create(session: SandboxSession, onOutput: (output: string) => void): Promise<CodesandboxTerminal> {
+    const terminal = await session.terminals.create();
+    terminal.onOutput(onOutput);
+    return new CodesandboxTerminal(terminal);
+  }
+
+  async write(command: string): Promise<void> {
+    await this.terminal.write(command);
+  }
+
+  async kill(): Promise<void> {
+    await this.terminal.kill();
+  }
+
+  async resize(cols: number, rows: number): Promise<void> {
+    // CodeSandbox does not provide a method to resize a terminal
+  }
+}
