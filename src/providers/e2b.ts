@@ -1,5 +1,5 @@
 import * as E2B from "@e2b/code-interpreter";
-import { Sandbox, FileEntry, Terminal } from "./index.js";
+import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
 
 export class E2BSandbox extends Sandbox {
   protected sandbox: E2B.Sandbox | null = null;
@@ -12,67 +12,54 @@ export class E2BSandbox extends Sandbox {
     }
   }
 
+  private ensureConnected(): E2B.Sandbox {
+    if (!this.sandbox) {
+      throw new Error("Sandbox not connected");
+    }
+    return this.sandbox;
+  }
+
   async run(command: string): Promise<string> {
     if (!this.sandbox) {
       await this.initialize();
     }
-    if (!this.sandbox) {
-      throw new Error("Failed to initialize sandbox");
-    }
-    const result = await this.sandbox.commands.run(command);
+    const sandbox = this.ensureConnected();
+    const result = await sandbox.commands.run(command);
     return result.stdout;
   }
 
   id(): string {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    return this.sandbox.sandboxId;
+    return this.ensureConnected().sandboxId;
   }
 
   async pause(): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    await this.sandbox.pause();
+    await this.ensureConnected().pause();
   }
 
   async resume(): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    if (!(await this.sandbox.isRunning())) {
+    const sandbox = this.ensureConnected();
+    if (!(await sandbox.isRunning())) {
       await E2B.Sandbox.resume(this.id());
     }
   }
 
   async destroy(): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
+    if (this.sandbox) {
+      await this.sandbox.kill();
+      this.sandbox = null;
     }
-    await this.sandbox.kill();
-    this.sandbox = null;
   }
 
   async readFile(path: string): Promise<string> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    return await this.sandbox.files.read(path);
+    return await this.ensureConnected().files.read(path);
   }
 
   async writeFile(path: string, content: string): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    await this.sandbox.files.write(path, content);
+    await this.ensureConnected().files.write(path, content);
   }
 
   async listFiles(path: string): Promise<FileEntry[]> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    const entries = await this.sandbox.files.list(path);
+    const entries = await this.ensureConnected().files.list(path);
     return entries.map((entry) => ({
       type: entry.type === "dir" ? "directory" : "file",
       name: entry.name,
@@ -80,38 +67,23 @@ export class E2BSandbox extends Sandbox {
   }
 
   async deleteFile(path: string): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    await this.sandbox.files.remove(path);
+    await this.ensureConnected().files.remove(path);
   }
 
   async moveFile(path: string, newPath: string): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    await this.sandbox.files.rename(path, newPath);
+    await this.ensureConnected().files.rename(path, newPath);
   }
 
   async createDirectory(path: string): Promise<void> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    await this.sandbox.files.makeDir(path);
+    await this.ensureConnected().files.makeDir(path);
   }
 
   async getPreviewUrl(port: number): Promise<string> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    return this.sandbox.getHost(port);
+    return this.ensureConnected().getHost(port);
   }
 
   async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {
-    if (!this.sandbox) {
-      throw new Error("Sandbox not connected");
-    }
-    const terminal = new E2BTerminal(this.sandbox);
+    const terminal = new E2BTerminal(this.ensureConnected());
     await terminal.init(onOutput);
     return terminal;
   }
