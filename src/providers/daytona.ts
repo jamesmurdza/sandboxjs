@@ -1,11 +1,12 @@
 import * as Daytona from "@daytonaio/sdk";
-import { Sandbox, FileEntry, Terminal } from "./index.js";
+import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
 
-export class DaytonaSandbox implements Sandbox {
+export class DaytonaSandbox extends Sandbox {
   private daytona: Daytona.Daytona;
   protected sandbox: Daytona.Sandbox | null = null;
 
   constructor() {
+    super();
     this.daytona = new Daytona.Daytona();
   }
 
@@ -136,17 +137,15 @@ export class DaytonaSandbox implements Sandbox {
   }
 }
 
+// Daytona doesn't provide a pseudo-terminal SDK
 class DaytonaTerminal extends Terminal {
   write(data: string): Promise<void> {
-    // Stub
     return Promise.resolve();
   }
   resize(cols: number, rows: number): Promise<void> {
-    // Stub
     return Promise.resolve();
   }
   kill(): Promise<void> {
-    // Stub
     return Promise.resolve();
   }
 }

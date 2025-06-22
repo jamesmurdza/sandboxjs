@@ -1,4 +1,4 @@
-import { Provider, providerRegistry } from "./providers/index.js";
+import { Provider, providers, providerRegistry } from "./providers/index.js";
 
 export type FileEntry = {
   type: "directory" | "file";
@@ -6,15 +6,23 @@ export type FileEntry = {
 };
 
 export abstract class Sandbox {
+  // Create a new sandbox instance
   static async create(provider: Provider) {
     const instance = new providerRegistry[provider]();
     await instance.initialize();
     return instance;
   }
+
+  // Connect to an existing sandbox instance
   static async connect(provider: Provider, id: string) {
     const instance = new providerRegistry[provider]();
     await instance.initialize(id);
     return instance;
+  }
+
+  // Get the list of available providers
+  static getProvidersList(): Array<Provider> {
+    return providers;
   }
 
   // Execute a command in the sandbox and return its output
@@ -24,7 +32,7 @@ export abstract class Sandbox {
   abstract id(): string;
 
   // Initialize a new sandbox instance
-  abstract initialize(id?: string): Promise<void>;
+  protected abstract initialize(id?: string): Promise<void>;
 
   // Pause the sandbox
   abstract pause(): Promise<void>;

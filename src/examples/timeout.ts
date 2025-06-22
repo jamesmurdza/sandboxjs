@@ -1,4 +1,4 @@
-import { Sandbox } from "../providers/index.js";
+import { Sandbox } from "../index.js";
 
 async function createAndResumeSandboxes() {
   const createTimes: number[] = [];

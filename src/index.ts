@@ -1,4 +1,4 @@
-import { Provider, providers } from "./providers";
+import { Provider } from "./providers";
 import { Sandbox } from "./sandbox";
 
-export { Provider, providers, Sandbox };
+export { Provider, Sandbox };

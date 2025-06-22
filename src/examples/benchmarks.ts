@@ -1,4 +1,4 @@
-import { Sandbox, providers } from "../providers/index.js";
+import { Sandbox } from "../index.js";
 
 async function runExample(provider: string) {
   const times = {
@@ -55,7 +55,7 @@ function average(arr: number[]) {
 
 async function main() {
   const results = [];
-  for (const provider of ["e2b"]) {
+  for (const provider of Sandbox.getProvidersList()) {
     const result = await runExample(provider);
     results.push(result);
   }

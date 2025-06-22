@@ -1,4 +1,4 @@
-import { Sandbox, providers } from "../providers/index.js";
+import { Sandbox } from "../index.js";
 
 async function runExample(provider: string) {
   console.log(`\n--- Running example for: ${provider} ---`);
@@ -28,7 +28,7 @@ async function runExample(provider: string) {
 }
 
 async function main() {
-  for (const provider of providers) {
+  for (const provider of Sandbox.getProvidersList()) {
     await runExample(provider);
   }
 }
