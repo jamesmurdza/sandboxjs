@@ -10,7 +10,7 @@ export class DaytonaSandbox extends Sandbox {
     this.daytona = new Daytona.Daytona();
   }
 
-  async initialize(id?: string): Promise<void> {
+  async init(id?: string): Promise<void> {
     if (id) {
       this.sandbox = await this.daytona.get(id);
       if (!this.sandbox) {
@@ -33,7 +33,7 @@ export class DaytonaSandbox extends Sandbox {
 
   async run(command: string): Promise<string> {
     if (!this.sandbox) {
-      await this.initialize();
+      await this.init();
     }
     const sandbox = this.ensureConnected();
     const response = await sandbox.process.executeCommand(command);

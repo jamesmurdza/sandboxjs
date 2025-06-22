@@ -9,8 +9,6 @@ export class CodeSandboxSandbox extends Sandbox {
   protected sandbox: CodeSandbox.Sandbox | null = null;
   private session: CodeSandbox.WebSocketSession | null = null;
 
-  // We only run synchronous methods in the constructor
-  // In the future, we might include async methods and use a ready pattern
   constructor() {
     super();
     const apiKey = process.env.CODESANDBOX_API_KEY;
@@ -22,8 +20,7 @@ export class CodeSandboxSandbox extends Sandbox {
     this.sdk = new CodeSandbox.CodeSandbox(apiKey);
   }
 
-  // Run asynchronous initialization methods
-  async initialize(id?: string): Promise<void> {
+  async init(id?: string): Promise<void> {
     if (id) {
       this.sandbox = await this.sdk.sandboxes.resume(id);
     } else {

@@ -9,14 +9,14 @@ export abstract class Sandbox {
   // Create a new sandbox instance
   static async create(provider: Provider) {
     const instance = new providerRegistry[provider]();
-    await instance.initialize();
+    await instance.init();
     return instance;
   }
 
   // Connect to an existing sandbox instance
   static async connect(provider: Provider, id: string) {
     const instance = new providerRegistry[provider]();
-    await instance.initialize(id);
+    await instance.init(id);
     return instance;
   }
 
@@ -25,14 +25,14 @@ export abstract class Sandbox {
     return providers;
   }
 
+  // Create a new sandbox or connect to an existing one
+  protected abstract init(id?: string): Promise<void>;
+
   // Execute a command in the sandbox and return its output
   abstract run(command: string): Promise<string>;
 
   // Get the sandbox ID
   abstract id(): string;
-
-  // Initialize a new sandbox instance
-  protected abstract initialize(id?: string): Promise<void>;
 
   // Pause the sandbox
   abstract pause(): Promise<void>;

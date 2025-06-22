@@ -4,7 +4,7 @@ import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
 export class E2BSandbox extends Sandbox {
   protected sandbox: E2B.Sandbox | null = null;
 
-  async initialize(id?: string): Promise<void> {
+  async init(id?: string): Promise<void> {
     if (id) {
       this.sandbox = await E2B.Sandbox.connect(id);
     } else {
@@ -21,7 +21,7 @@ export class E2BSandbox extends Sandbox {
 
   async run(command: string): Promise<string> {
     if (!this.sandbox) {
-      await this.initialize();
+      await this.init();
     }
     const sandbox = this.ensureConnected();
     const result = await sandbox.commands.run(command);
