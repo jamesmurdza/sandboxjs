@@ -17,7 +17,7 @@ async function runExample(provider: string) {
 
     try {
       const startPause = performance.now();
-      await sandbox.pause();
+      await sandbox.suspend();
       const endPause = performance.now();
       times.pause.push(endPause - startPause);
       console.log(`Paused ${provider} sandbox`);

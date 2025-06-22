@@ -44,7 +44,7 @@ export class DaytonaSandbox extends Sandbox {
     return this.ensureConnected().id;
   }
 
-  async pause(): Promise<void> {
+  async suspend(): Promise<void> {
     const sandbox = this.ensureConnected();
     if (sandbox.state == Daytona.SandboxState.STARTED) {
       await sandbox.stop();

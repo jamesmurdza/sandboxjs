@@ -35,7 +35,7 @@ export abstract class Sandbox {
   abstract id(): string;
 
   // Pause the sandbox
-  abstract pause(): Promise<void>;
+  abstract suspend(): Promise<void>;
 
   // Resume the sandbox
   abstract resume(): Promise<void>;

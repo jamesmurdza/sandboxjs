@@ -62,11 +62,13 @@ npm install sandboxjs
 ```js
 import Sandbox from "sandboxjs";
 
-const sandbox = await Sandbox.create("daytona");
+const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
 
 console.log(await sandbox.run("echo 'hello world'"));
 
-await sandbox.stop();
+console.log(sandbox.id());
+
+await sandbox.suspend();
 ```
 
 ### Connect to a sandbox
@@ -78,7 +80,7 @@ const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
 console.log(await sandbox.run("echo 'hello world'"));
 
-await sandbox.stop();
+await sandbox.destroy();
 ```
 
 ## Methods
@@ -101,10 +103,10 @@ const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 console.log(await sandbox.run("echo 'hello world'"));
 ```
 
-### pause
+### suspend
 
 ```js
-await sandbox.pause();
+await sandbox.suspend();
 ```
 
 ### resume

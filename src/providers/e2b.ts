@@ -32,7 +32,7 @@ export class E2BSandbox extends Sandbox {
     return this.ensureConnected().sandboxId;
   }
 
-  async pause(): Promise<void> {
+  async suspend(): Promise<void> {
     await this.ensureConnected().pause();
   }
 

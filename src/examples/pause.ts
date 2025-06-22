@@ -4,7 +4,7 @@ async function runExample(provider: string) {
   console.log(`\n--- Running example for: ${provider} ---`);
   const sandbox = await Sandbox.create(provider);
   try {
-    await sandbox.pause();
+    await sandbox.suspend();
     console.log(`Paused ${provider} sandbox`);
 
     await sandbox.resume();

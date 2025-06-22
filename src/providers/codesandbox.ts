@@ -63,7 +63,7 @@ export class CodeSandboxSandbox extends Sandbox {
     return this.sandbox.id;
   }
 
-  async pause(): Promise<void> {
+  async suspend(): Promise<void> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
     }
@@ -78,7 +78,7 @@ export class CodeSandboxSandbox extends Sandbox {
   }
 
   async destroy(): Promise<void> {
-    await this.pause();
+    await this.suspend();
     if (this.session) {
       await this.session.disconnect();
       this.session.dispose();
