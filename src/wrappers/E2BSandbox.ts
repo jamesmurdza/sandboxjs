@@ -1,5 +1,5 @@
 import { Sandbox } from '@e2b/code-interpreter';
-import { BaseSandbox } from './BaseSandbox.js';
+import { BaseSandbox, FileEntry } from './BaseSandbox.js';
 
 export class E2BSandbox implements BaseSandbox {
   protected sandbox: Sandbox | null = null;
@@ -49,5 +49,52 @@ export class E2BSandbox implements BaseSandbox {
     }
     await this.sandbox.kill();
     this.sandbox = null;
+  }
+
+  async readFile(path: string): Promise<string> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    return await this.sandbox.files.read(path);
+  }
+
+  async writeFile(path: string, content: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.files.write(path, content);
+  }
+
+  async listFiles(path: string): Promise<FileEntry[]> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    const entries = await this.sandbox.files.list(path);
+    return entries.map((entry) => ({
+        type: entry.type === "dir" ? "directory" : "file",
+        name: entry.name
+      })
+    )
+  }
+
+  async deleteFile(path: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.files.remove(path);
+  }
+
+  async moveFile(path: string, newPath: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.files.rename(path, newPath);
+  }
+
+  async createDirectory(path: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.files.makeDir(path);
   }
 }

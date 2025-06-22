@@ -1,5 +1,5 @@
 import { Daytona, Sandbox, SandboxState } from '@daytonaio/sdk';
-import { BaseSandbox } from './BaseSandbox.js';
+import { BaseSandbox, FileEntry } from './BaseSandbox.js';
 
 export class DaytonaSandbox implements BaseSandbox {
   private daytona: Daytona;
@@ -67,5 +67,57 @@ export class DaytonaSandbox implements BaseSandbox {
     }
     await this.sandbox.delete();
     this.sandbox = null;
+  }
+
+  async readFile(path: string): Promise<string> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    const response = await this.sandbox.fs.downloadFile(path);
+    return response.toString();
+  }
+
+  async writeFile(path: string, content: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.fs.uploadFile(Buffer.from(content), path);
+  }
+
+  async listFiles(path: string): Promise<FileEntry[]> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    const response = await this.sandbox.fs.listFiles(path);
+    return response.map((file) => ({
+      type: file.isDir ? 'directory' : 'file',
+      name: file.name
+    }));
+  }
+
+  async moveFile(path: string, newPath: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.fs.moveFiles(path, newPath);
+  }
+
+  async deleteFile(path: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    const fileDetails = await this.sandbox.fs.getFileDetails(path);
+    if (fileDetails.isDir) {
+      // Daytona's deleteFile method does not support deleting directories
+    } else {
+      await this.sandbox.fs.deleteFile(path);
+    }
+  }
+
+  async createDirectory(path: string): Promise<void> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    await this.sandbox.fs.createFolder(path, "755");
   }
 }

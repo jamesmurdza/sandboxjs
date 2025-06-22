@@ -1,3 +1,8 @@
+export type FileEntry = {
+    type: 'directory' | 'file';
+    name: string;
+}
+
 export interface BaseSandbox {
   // Execute a command in the sandbox and return its output
   run(command: string): Promise<string>;
@@ -16,4 +21,12 @@ export interface BaseSandbox {
 
   // Stop and destroy the sandbox
   destroy(): Promise<void>;
+
+  // File operations
+  readFile(path: string): Promise<string>;
+  writeFile(path: string, content: string): Promise<void>;
+  listFiles(path: string): Promise<Array<FileEntry>>;
+  moveFile(path: string, newPath: string): Promise<void>;
+  deleteFile(path: string): Promise<void>;
+  createDirectory(path: string): Promise<void>;
 }
