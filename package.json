@@ -1,0 +1,29 @@
+{
+  "name": "sandboxjs",
+  "version": "1.0.0",
+  "description": "A package that exports a Sandbox class and detects API keys from environment variables.",
+  "type": "module",
+  "main": "dist/Sandbox.js",
+  "types": "dist/Sandbox.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/Sandbox.js",
+      "require": "./dist/Sandbox.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@codesandbox/sdk": "^1.1.6",
+    "@daytonaio/sdk": "^0.21.1",
+    "@e2b/code-interpreter": "^1.5.1"
+  }
+}
