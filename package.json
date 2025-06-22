@@ -24,6 +24,6 @@
   "dependencies": {
     "@codesandbox/sdk": "^1.1.6",
     "@daytonaio/sdk": "^0.21.1",
-    "@e2b/code-interpreter": "^1.5.1"
+    "@e2b/code-interpreter": "^1.2.0-beta.4"
   }
 }
