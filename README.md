@@ -45,6 +45,7 @@ npm test
 ---
 
 ## Notes
+
 - The example uses CodeSandbox by default. You can change the sandbox type in `src/example.ts`.
 - Make sure to set the required API keys in your environment for the respective sandbox providers.
 
@@ -59,7 +60,7 @@ npm install sandboxjs
 ### Create a sandbox
 
 ```js
-import Sandbox from 'sandboxjs';
+import Sandbox from "sandboxjs";
 
 const sandbox = await Sandbox.create("daytona");
 
@@ -71,7 +72,7 @@ await sandbox.stop();
 ### Connect to a sandbox
 
 ```js
-import Sandbox from 'sandboxjs';
+import Sandbox from "sandboxjs";
 
 const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
@@ -80,3 +81,96 @@ console.log(await sandbox.run("echo 'hello world'"));
 await sandbox.stop();
 ```
 
+## Methods
+
+### create
+
+```js
+const sandbox = await Sandbox.create("daytona");
+```
+
+### connect
+
+```js
+const sandbox = await Sandbox.connect("daytona", "sandbox_id");
+```
+
+### run
+
+```js
+console.log(await sandbox.run("echo 'hello world'"));
+```
+
+### pause
+
+```js
+await sandbox.pause();
+```
+
+### resume
+
+```js
+await sandbox.resume();
+```
+
+### destroy
+
+```js
+await sandbox.destroy();
+```
+
+### readFile
+
+```js
+console.log(await sandbox.readFile("/path/to/file"));
+```
+
+### writeFile
+
+```js
+await sandbox.writeFile("/path/to/file", "content");
+```
+
+### listFiles
+
+```js
+console.log(await sandbox.listFiles("/path/to/directory"));
+```
+
+### moveFile
+
+```js
+await sandbox.moveFile("/path/to/file", "/path/to/new/file");
+```
+
+### deleteFile
+
+```js
+await sandbox.deleteFile("/path/to/file");
+```
+
+### createDirectory
+
+```js
+await sandbox.createDirectory("/path/to/directory");
+```
+
+### getPreviewUrl
+
+```js
+console.log(await sandbox.getPreviewUrl(8080));
+```
+
+### createTerminal
+
+```js
+const terminal = await sandbox.createTerminal();
+```
+
+### Terminal Methods
+
+```js
+await terminal.write("echo 'hello world'");
+await terminal.resize(80, 24);
+await terminal.kill();
+```
