@@ -31,15 +31,18 @@ export class E2BSandbox implements BaseSandbox {
   }
 
   async pause(): Promise<void> {
-    // E2B does not provide a method to pause a sandbox
+    if (!this.sandbox) {
+      throw new Error("Sandbox not connected");
+    }
+    await this.sandbox.pause();
   }
 
   async resume(): Promise<void> {
     if (!this.sandbox) {
       throw new Error("Sandbox not connected");
     }
-    if (!this.sandbox.isRunning()) {
-      await Sandbox.connect(this.id());
+    if (!(await this.sandbox.isRunning())) {
+      await Sandbox.resume(this.id());
     }
   }
 
