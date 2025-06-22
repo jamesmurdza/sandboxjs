@@ -97,4 +97,11 @@ export class E2BSandbox implements BaseSandbox {
     }
     await this.sandbox.files.makeDir(path);
   }
+
+  async getPreviewUrl(port: number): Promise<string> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    return this.sandbox.getHost(port);
+  }
 }

@@ -120,4 +120,11 @@ export class DaytonaSandbox implements BaseSandbox {
     }
     await this.sandbox.fs.createFolder(path, "755");
   }
+
+  async getPreviewUrl(port: number): Promise<string> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not connected');
+    }
+    return (await this.sandbox.getPreviewLink(port)).url;
+  }
 }

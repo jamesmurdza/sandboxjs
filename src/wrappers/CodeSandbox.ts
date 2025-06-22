@@ -123,4 +123,12 @@ export class CodeSandbox implements BaseSandbox {
     const session = await this.ensureSession();
     await session.fs.mkdir(path);
   }
+
+  async getPreviewUrl(port: number): Promise<string> {
+    if (!this.sandbox) {
+      throw new Error('Sandbox not initialized');
+    }
+    const session = await this.ensureSession();
+    return await session.hosts.getUrl(port);
+  }
 } 

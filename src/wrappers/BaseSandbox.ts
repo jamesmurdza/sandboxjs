@@ -29,4 +29,7 @@ export interface BaseSandbox {
   moveFile(path: string, newPath: string): Promise<void>;
   deleteFile(path: string): Promise<void>;
   createDirectory(path: string): Promise<void>;
+
+  // Preview URL
+  getPreviewUrl(port: number): Promise<string>;
 }
