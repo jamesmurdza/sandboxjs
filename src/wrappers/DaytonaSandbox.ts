@@ -1,12 +1,11 @@
 import { Daytona, Sandbox, SandboxState } from '@daytonaio/sdk';
 import { BaseSandbox } from './BaseSandbox.js';
 
-export class DaytonaSandbox extends BaseSandbox {
+export class DaytonaSandbox implements BaseSandbox {
   private daytona: Daytona;
   protected sandbox: Sandbox | null = null;
 
   constructor() {
-    super();
     this.daytona = new Daytona();
   }
 

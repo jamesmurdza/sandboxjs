@@ -4,14 +4,13 @@ import { BaseSandbox } from './BaseSandbox.js';
 
 dotenv.config();
 
-export class CodeSandbox extends BaseSandbox {
+export class CodeSandbox implements BaseSandbox {
   private sdk: CodeSandboxSDK;
   protected sandbox: Sandbox | null = null;
 
   // We only run synchronous methods in the constructor
   // In the future, we might include async methods and use a ready pattern
   constructor() {
-    super();
     const apiKey = process.env.CODESANDBOX_API_KEY;
     if (!apiKey) {
       throw new Error('CODESANDBOX_API_KEY is not set in environment variables');
@@ -26,6 +25,14 @@ export class CodeSandbox extends BaseSandbox {
     } else {
       this.sandbox = await this.sdk.sandboxes.create();
     }
+  }
+
+  async create(): Promise<void> {
+    this.sandbox = await this.sdk.sandboxes.create();
+  }
+
+  async connect(id: string): Promise<void> {
+    this.sandbox = await this.sdk.sandboxes.resume(id);
   }
   
   async run(command: string): Promise<string> {

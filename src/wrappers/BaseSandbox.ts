@@ -1,72 +1,19 @@
-/**
- * Base class for all sandbox implementations.
- * Provides common functionality and enforces the UnifiedSandbox interface.
- */
-export class BaseSandbox {
-  protected sandbox: any; // This will be set by the concrete implementation
+export interface BaseSandbox {
+  // Execute a command in the sandbox and return its output
+  run(command: string): Promise<string>;
 
-  /**
-   * Connects to an existing sandbox
-   * @param id The ID of the sandbox to connect to
-   * @returns A new instance of the sandbox connected to the specified ID
-   */
-  static async connect<T extends BaseSandbox>(this: new () => T, id: string): Promise<T> {
-    const instance = new this();
-    await instance.initialize(id);
-    return instance;
-  }
+  // Get the sandbox ID
+  id(): string;
 
-  /**
-   * Creates a new sandbox
-   * @returns A new instance of the sandbox
-   */
-  static async create<T extends BaseSandbox>(this: new () => T): Promise<T> {
-    const instance = new this();
-    await instance.initialize();
-    return instance;
-  }
+  // Initialize a new sandbox instance
+  initialize(id?: string): Promise<void>;
 
-  /**
-   * Runs a command in the sandbox
-   * @param command The command to run
-   * @returns The output of the command
-   */
-  async run(_command: string): Promise<string> {
-    throw new Error('Method not implemented');
-  }
+  // Pause the sandbox
+  pause(): Promise<void>;
 
-  /**
-   * Gets the ID of the current sandbox
-   * @returns The sandbox ID
-   * @throws If no sandbox is connected
-   */
-  id(): string {
-    throw new Error('Method not implemented');
-  }
+  // Resume the sandbox
+  resume(): Promise<void>;
 
-  /**
-   * Initializes a new sandbox instance
-   * @protected
-   */
-  protected async initialize(_id?: string): Promise<void> {
-    throw new Error('Method not implemented');
-  }
-
-  /**
-   * Pauses the sandbox
-   */
-  async pause(): Promise<void> {
-    throw new Error('Method not implemented');
-  }
-
-  async resume(): Promise<void> {
-    throw new Error('Method not implemented');
-  }
-
-  /**
-   * Stops and destroys the sandbox
-   */
-  async destroy(): Promise<void> {
-    throw new Error('Method not implemented');
-  }
+  // Stop and destroy the sandbox
+  destroy(): Promise<void>;
 }

@@ -1,7 +1,7 @@
 import { Sandbox } from '@e2b/code-interpreter';
 import { BaseSandbox } from './BaseSandbox.js';
 
-export class E2BSandbox extends BaseSandbox {
+export class E2BSandbox implements BaseSandbox {
   protected sandbox: Sandbox | null = null;
 
   async initialize(id?: string): Promise<void> {
