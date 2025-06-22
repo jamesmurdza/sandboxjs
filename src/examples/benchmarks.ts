@@ -8,7 +8,7 @@ async function runExample(provider: string) {
     destroy: [] as number[],
   };
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     console.log(`\n--- Run ${i + 1} for provider: ${provider} ---`);
     const startCreate = performance.now();
     const sandbox = await Sandbox.create(provider);
@@ -27,8 +27,6 @@ async function runExample(provider: string) {
       const endResume = performance.now();
       times.resume.push(endResume - startResume);
       console.log(`Resumed ${provider} sandbox`);
-
-      console.log(await sandbox.run("echo 'hello world'"));
     } catch (err) {
       console.error(`Error running example for ${provider}:`, err);
     } finally {
@@ -57,19 +55,32 @@ function average(arr: number[]) {
 
 async function main() {
   const results = [];
-  const result = await runExample("daytona");
-  results.push(result);
+  for (const provider of ["e2b"]) {
+    const result = await runExample(provider);
+    results.push(result);
+  }
+
+  const toTwoSigFigs = (num: number): number => {
+    // Format to 2 significant figures without scientific notation
+    return parseInt(num.toString().replace(/\.0+$/, ""));
+    //const rounded = parseFloat(num.toPrecision(2));
+    //return parseInt(rounded.toString().replace(/\.0+$/, ""));
+  };
 
   console.log("\n--- Average Times (ms) ---");
-  console.table(
-    results.map((r) => ({
-      Provider: r.provider,
-      Create: r.averages.create.toFixed(2),
-      Pause: r.averages.pause.toFixed(2),
-      Resume: r.averages.resume.toFixed(2),
-      Destroy: r.averages.destroy.toFixed(2),
-    }))
+  const tableData = results.reduce(
+    (acc, r) => ({
+      ...acc,
+      [r.provider]: {
+        Create: toTwoSigFigs(r.averages.create),
+        Pause: toTwoSigFigs(r.averages.pause),
+        Resume: toTwoSigFigs(r.averages.resume),
+        Destroy: toTwoSigFigs(r.averages.destroy),
+      },
+    }),
+    {}
   );
+  console.table(tableData);
 }
 
 main();
