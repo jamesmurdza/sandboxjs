@@ -1,8 +1,27 @@
 # sandboxjs
 
-A library that provides a unified interface for interacting with Linux-based sandbox providers.
+A library that provides a unified interface for interacting with Linux-based sandbox providers. It can be used to create the building blocks of AI agents that run code or perform other potentially unsafe operations.
 
-It can be used to create the building blocks of AI agents that run code or perform other potentially unsafe operations.
+## Usage
+
+```js
+import Sandbox from "@jamesmurdza/sandboxjs";
+
+// Create a new sandbox
+const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
+
+// Connect to an existing sandbox
+// const sandbox = await Sandbox.connect("daytona", "sandbox_id");
+
+// Run commands and interact with the sandbox
+console.log(await sandbox.run("echo 'hello world'"));
+console.log(await sandbox.listFiles("/"));
+
+// Suspend, resume and destroy the sandbox
+await sandbox.suspend();
+await sandbox.resume();
+await sandbox.destroy();
+```
 
 ## Provider Support
 
@@ -55,34 +74,6 @@ To run the test suite:
 
 ```
 npm test
-```
-
-## Usage
-
-### Create a sandbox
-
-```js
-import Sandbox from "@jamesmurdza/sandboxjs";
-
-const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
-
-console.log(await sandbox.run("echo 'hello world'"));
-
-console.log(sandbox.id());
-
-await sandbox.suspend();
-```
-
-### Connect to a sandbox
-
-```js
-import Sandbox from "@jamesmurdza/sandboxjs";
-
-const sandbox = await Sandbox.connect("daytona", "sandbox_id");
-
-console.log(await sandbox.run("echo 'hello world'"));
-
-await sandbox.destroy();
 ```
 
 ## Methods
