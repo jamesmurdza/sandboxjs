@@ -1,6 +1,6 @@
 # sandboxjs
 
-A unified interface for with Linux-based cloud sandbox providers. It can be used to create the building blocks of AI agents that run code or perform other potentially unsafe operations.
+A unified interface for Linux-based cloud sandbox providers. It can be used to create the building blocks of AI agents that run code or perform other potentially unsafe operations.
 
 ## Usage
 

@@ -1,7 +1,7 @@
 {
   "name": "@jamesmurdza/sandboxjs",
   "version": "0.1.0",
-  "description": "A unified interface for with Linux-based cloud sandbox providers.",
+  "description": "A unified interface for Linux-based cloud sandbox providers.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
