@@ -1,4 +1,4 @@
-import { Provider, providers, providerRegistry } from "./providers/index.js";
+import { listProviders, getProvider } from "./registry.js";
 
 export type FileEntry = {
   type: "directory" | "file";
@@ -7,22 +7,24 @@ export type FileEntry = {
 
 export abstract class Sandbox {
   // Create a new sandbox instance
-  static async create(provider: Provider) {
-    const instance = new providerRegistry[provider]();
+  static async create(provider: string) {
+    const Provider = getProvider(provider);
+    const instance = new Provider();
     await instance.init();
     return instance;
   }
 
   // Connect to an existing sandbox instance
-  static async connect(provider: Provider, id: string) {
-    const instance = new providerRegistry[provider]();
+  static async connect(provider: string, id: string) {
+    const Provider = getProvider(provider);
+    const instance = new Provider();
     await instance.init(id);
     return instance;
   }
 
   // Get the list of available providers
-  static getProvidersList(): Array<Provider> {
-    return providers;
+  static getProvidersList(): Array<string> {
+    return listProviders();
   }
 
   // Create a new sandbox or connect to an existing one
