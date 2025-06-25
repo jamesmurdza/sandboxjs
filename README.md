@@ -1,29 +1,44 @@
 # sandboxjs
 
-A package that exports a Sandbox class and detects API keys from environment variables.
+A library that provides a unified interface for interacting with Linux-based sandbox providers.
+
+It can be used to create the building blocks of AI agents that run code or perform other potentially unsafe operations.
+
+## Provider Support
+
+| Tool            | Filesystem Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Filesystem Watch | Preview URLs | Pseudo-terminals |
+| --------------- | ---------------------- | ------------------ | ---------------- | ---------------- | ---------------- | ------------ | ---------------- |
+| **E2B**         | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               |
+| **Daytona**     | ✅                     | ❌                 | ✅               | ❌               | ❌               | ✅           | ❌               |
+| **Codesandbox** | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               |
 
 ## Getting Started
 
-### 1. Install dependencies
+### 1. Set up environment variables
+
+Create a `.env` file in the root directory of the project and add at least one of the following environment variables:
+
+```shell
+# Get an E2B API key here: https://e2b.dev/dashboard
+E2B_API_KEY=
+# Get a Daytona API key here: https://app.daytona.io/dashboard/keys
+DAYTONA_API_KEY=
+# Get a CodeSandbox API key here: https://codesandbox.io/t
+CODESANDBOX_API_KEY=
+```
+
+### 2. Install dependencies
 
 ```
 npm install
 ```
 
-### 2. Build the project
+### 3. Build the project
 
 Compiles the TypeScript source files to JavaScript in the `dist/` directory.
 
 ```
 npm run build
-```
-
-### 3. Set up environment variables
-
-For CodeSandbox integration, set your API key:
-
-```
-export CODESANDBOX_API_KEY=your_api_key_here
 ```
 
 ### 4. Run the example
@@ -42,25 +57,12 @@ To run the test suite:
 npm test
 ```
 
----
-
-## Notes
-
-- The example uses CodeSandbox by default. You can change the sandbox type in `src/example.ts`.
-- Make sure to set the required API keys in your environment for the respective sandbox providers.
-
-## Installation
-
-```sh
-npm install sandboxjs
-```
-
 ## Usage
 
 ### Create a sandbox
 
 ```js
-import Sandbox from "sandboxjs";
+import Sandbox from "@jamesmurdza/sandboxjs";
 
 const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
 
@@ -74,7 +76,7 @@ await sandbox.suspend();
 ### Connect to a sandbox
 
 ```js
-import Sandbox from "sandboxjs";
+import Sandbox from "@jamesmurdza/sandboxjs";
 
 const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
@@ -88,7 +90,7 @@ await sandbox.destroy();
 ### create
 
 ```js
-const sandbox = await Sandbox.create("daytona");
+const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
 ```
 
 ### connect
@@ -176,3 +178,9 @@ await terminal.write("echo 'hello world'");
 await terminal.resize(80, 24);
 await terminal.kill();
 ```
+
+## Future Plans
+
+- Add support for watching filesystem changes
+- Add pseudo-terminal support
+- Add support for running commands in the background
