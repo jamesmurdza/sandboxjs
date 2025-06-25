@@ -25,11 +25,11 @@ await sandbox.destroy();
 
 ## Provider Support
 
-| Tool            | Filesystem Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Filesystem Watch | Preview URLs | Pseudo-terminals |
-| --------------- | ---------------------- | ------------------ | ---------------- | ---------------- | ---------------- | ------------ | ---------------- |
-| **E2B**         | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               |
-| **Daytona**     | ✅                     | ❌                 | ✅               | ❌               | ❌               | ✅           | ❌               |
-| **CodeSandbox** | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               |
+| Tool            | Filesystem Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Filesystem Watch | Preview URLs | Pseudo-terminals | Destroy Sandbox |
+| --------------- | ---------------------- | ------------------ | ---------------- | ---------------- | ---------------- | ------------ | ---------------- | --------------- |
+| **E2B**         | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               | ✅              |
+| **Daytona**     | ✅                     | ❌                 | ✅               | ❌               | ❌               | ✅           | ❌               | ✅              |
+| **CodeSandbox** | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               | ❌              |
 
 ## Getting Started
 
