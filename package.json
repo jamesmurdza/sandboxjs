@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "description": "A unified interface for with Linux-based cloud sandbox providers.",
   "type": "module",
-  "main": "dist/Sandbox.js",
-  "types": "dist/Sandbox.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "exports": {
     ".": {
-      "import": "./dist/Sandbox.js",
-      "require": "./dist/Sandbox.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",
