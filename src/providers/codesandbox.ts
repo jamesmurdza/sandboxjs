@@ -22,6 +22,8 @@ export class CodeSandboxSandbox extends Sandbox {
 
   async init(id?: string): Promise<void> {
     if (id) {
+      // CodeSandbox fails to resume a sandbox that is already running
+      await this.sdk.sandboxes.hibernate(id);
       this.sandbox = await this.sdk.sandboxes.resume(id);
     } else {
       this.sandbox = await this.sdk.sandboxes.create();
