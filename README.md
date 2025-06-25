@@ -25,11 +25,11 @@ await sandbox.destroy();
 
 ## Provider Support
 
-| Tool            | Filesystem Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Filesystem Watch | Preview URLs | Pseudo-terminals | Destroy Sandbox |
-| --------------- | ---------------------- | ------------------ | ---------------- | ---------------- | ---------------- | ------------ | ---------------- | --------------- |
-| **E2B**         | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               | ✅              |
-| **Daytona**     | ✅                     | ❌                 | ✅               | ❌               | ❌               | ✅           | ❌               | ✅              |
-| **CodeSandbox** | ✅                     | ✅                 | ✅               | ✅               | ✅               | ✅           | ✅               | ❌              |
+| Provider        | File Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Directory Watch | Preview URLs | Pseudo-terminals | Destroy Sandbox |
+| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | --------------- |
+| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅              |
+| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅              |
+| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌              |
 
 ## Getting Started
 
@@ -172,6 +172,6 @@ await terminal.kill();
 
 ## Future Plans
 
-- Add support for watching filesystem changes
+- Add support for watching file system changes
 - Add pseudo-terminal support
 - Add support for running commands in the background
