@@ -28,19 +28,6 @@ export class CodeSandboxSandbox extends Sandbox {
     }
   }
 
-  async create(): Promise<void> {
-    this.sandbox = await this.sdk.sandboxes.create();
-  }
-
-  async connect(id: string): Promise<void> {
-    this.sandbox = await this.sdk.sandboxes.resume(id);
-    if (this.session) {
-      this.session.dispose();
-      this.session = null;
-    }
-    this.session = await this.sandbox.connect();
-  }
-
   private async ensureSession(): Promise<CodeSandbox.WebSocketSession> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
