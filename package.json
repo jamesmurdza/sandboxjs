@@ -1,7 +1,7 @@
 {
   "name": "@jamesmurdza/sandboxjs",
   "version": "0.1.0",
-  "description": "A package that exports a Sandbox class and detects API keys from environment variables.",
+  "description": "A library that provides a unified interface for interacting with Linux-based sandbox providers.",
   "type": "module",
   "main": "dist/Sandbox.js",
   "types": "dist/Sandbox.d.ts",
