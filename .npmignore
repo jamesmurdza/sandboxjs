@@ -1,0 +1,55 @@
+# Build output
+coverage/
+*.log
+
+# Dependencies
+node_modules/
+
+# TypeScript
+*.ts
+!*.d.ts
+
+# Tests and examples
+test/
+tests/
+examples/
+__tests__/
+*.test.*
+*.spec.*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Config files that might contain sensitive information
+*.config.js
+*.config.json
+
+# Build files
+dist/test/
+
+# Local development files
+*.local.*

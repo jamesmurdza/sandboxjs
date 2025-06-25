@@ -1,6 +1,6 @@
 {
-  "name": "sandboxjs",
-  "version": "1.0.0",
+  "name": "@jamesmurdza/sandboxjs",
+  "version": "0.1.0",
   "description": "A package that exports a Sandbox class and detects API keys from environment variables.",
   "type": "module",
   "main": "dist/Sandbox.js",
@@ -16,7 +16,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.0.3",
     "typescript": "^5.8.3"
