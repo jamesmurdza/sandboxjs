@@ -9,14 +9,14 @@ async function runExample(provider: string) {
 
     // Write to file
     console.log(`Writing to ${filename} in ${provider} sandbox...`);
-    await sandbox.run(`echo '${content}' > ${filename}`);
+    await sandbox.runCommand(`echo '${content}' > ${filename}`);
 
     // Connect to the same sandbox
     const sandbox2 = await Sandbox.connect(provider, sandbox.id());
     console.log(`Reading from ${filename} in connected ${provider} sandbox...`);
 
     // Read from file
-    const output2 = await sandbox2.run(`cat ${filename}`);
+    const output2 = await sandbox2.runCommand(`cat ${filename}`);
     console.log("File content from connected sandbox:", output2);
   } catch (err) {
     console.error(`Error running example for ${provider}:`, err);

@@ -14,7 +14,7 @@ const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
 // const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
 // Run commands and interact with the sandbox
-console.log(await sandbox.run("echo 'hello world'"));
+console.log(await sandbox.runCommand("echo 'hello world'"));
 console.log(await sandbox.listFiles("/"));
 
 // Suspend, resume and destroy the sandbox
@@ -90,10 +90,10 @@ const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
 const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 ```
 
-### run
+### runCommand
 
 ```js
-console.log(await sandbox.run("echo 'hello world'"));
+console.log(await sandbox.runCommand("echo 'hello world'"));
 ```
 
 ### suspend

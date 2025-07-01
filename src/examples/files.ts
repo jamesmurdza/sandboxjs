@@ -12,7 +12,7 @@ async function runExample(provider: string) {
 
     // 1. Write to file
     console.log(`1. Writing to ${filename}...`);
-    await sandbox.run(`echo '${content}' > ${filename}`);
+    await sandbox.runCommand(`echo '${content}' > ${filename}`);
 
     // 2. Read file using sandbox's readFile method
     console.log("2. Reading file...");

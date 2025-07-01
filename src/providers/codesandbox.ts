@@ -40,7 +40,7 @@ export class CodeSandboxSandbox extends Sandbox {
     return this.session;
   }
 
-  async run(command: string): Promise<string> {
+  async runCommand(command: string): Promise<string> {
     const session = await this.ensureSession();
     return await session.commands.run(command);
   }

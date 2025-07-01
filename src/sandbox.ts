@@ -31,7 +31,7 @@ export abstract class Sandbox {
   protected abstract init(id?: string): Promise<void>;
 
   // Execute a command in the sandbox and return its output
-  abstract run(command: string): Promise<string>;
+  abstract runCommand(command: string): Promise<string>;
 
   // Get the sandbox ID
   abstract id(): string;

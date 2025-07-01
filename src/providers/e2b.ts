@@ -19,7 +19,7 @@ export class E2BSandbox extends Sandbox {
     return this.sandbox;
   }
 
-  async run(command: string): Promise<string> {
+  async runCommand(command: string): Promise<string> {
     if (!this.sandbox) {
       await this.init();
     }
