@@ -1,5 +1,5 @@
 {
-  "name": "@jamesmurdza/sandboxjs",
+  "name": "@gitwit/sandbox",
   "version": "0.1.1",
   "description": "A unified interface for Linux-based cloud sandbox providers.",
   "type": "module",
