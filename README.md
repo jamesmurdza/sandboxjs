@@ -5,7 +5,7 @@ A unified interface for Linux-based cloud sandbox providers. It can be used to c
 ## Usage
 
 ```js
-import Sandbox from "@gitwit/sandbox";
+import { Sandbox } from "@gitwit/sandbox";
 
 // Create a new sandbox
 const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
