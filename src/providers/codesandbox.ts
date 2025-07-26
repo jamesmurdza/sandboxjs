@@ -22,7 +22,7 @@ export class CodeSandboxSandbox extends Sandbox {
 
   async init(id?: string): Promise<void> {
     if (id) {
-      // CodeSandbox fails to resume a sandbox that is already running
+      console.warn("Now hibernating and resuming the sandbox, since CodeSandbox does not support initializing a running sandbox from its ID");
       await this.sdk.sandboxes.hibernate(id);
       this.sandbox = await this.sdk.sandboxes.resume(id);
     } else {
@@ -73,7 +73,7 @@ export class CodeSandboxSandbox extends Sandbox {
       this.session.dispose();
       this.session = null;
     }
-    // CodeSandbox does not provide a method to delete a sandbox
+    console.warn("CodeSandbox does not actually support destroying sandboxes");
     this.sandbox = null;
   }
 
@@ -151,6 +151,6 @@ export class CodeSandboxTerminal extends Terminal {
   }
 
   async resize(cols: number, rows: number): Promise<void> {
-    // CodeSandbox does not provide a method to resize a terminal
+    console.warn("CodeSandbox terminals do not support resizing");
   }
 }

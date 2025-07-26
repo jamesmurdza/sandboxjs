@@ -92,7 +92,7 @@ export class DaytonaSandbox extends Sandbox {
     const sandbox = this.ensureConnected();
     const fileDetails = await sandbox.fs.getFileDetails(path);
     if (fileDetails.isDir) {
-      // Daytona's deleteFile method does not support deleting directories
+      console.warn("Daytona does not support deleting directories");
     } else {
       await sandbox.fs.deleteFile(path);
     }
@@ -107,22 +107,8 @@ export class DaytonaSandbox extends Sandbox {
   }
 
   async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {
-    this.ensureConnected(); // Just to check connection
-    return new DaytonaTerminal();
+    throw new Error("Daytona sandboxes do not support interactive terminals");
   }
 }
 
-// Daytona doesn't provide a pseudo-terminal SDK
-class DaytonaTerminal extends Terminal {
-  write(data: string): Promise<void> {
-    return Promise.resolve();
-  }
 
-  resize(cols: number, rows: number): Promise<void> {
-    return Promise.resolve();
-  }
-
-  kill(): Promise<void> {
-    return Promise.resolve();
-  }
-}
