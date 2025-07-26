@@ -174,5 +174,4 @@ await terminal.kill();
 ## Future Plans
 
 - Add support for watching file system changes
-- Add pseudo-terminal support
 - Add support for running commands in the background
