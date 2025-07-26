@@ -8,7 +8,7 @@ A unified interface for Linux-based cloud sandbox providers. It can be used to c
 import { Sandbox } from "@gitwit/sandbox";
 
 // Create a new sandbox
-const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
+const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
 
 // Connect to an existing sandbox
 // const sandbox = await Sandbox.connect("daytona", "sandbox_id");
@@ -45,6 +45,9 @@ E2B_API_KEY=
 DAYTONA_API_KEY=
 # Get a CodeSandbox API key here: https://codesandbox.io/t
 CODESANDBOX_API_KEY=
+# Get a Modal API token here: https://modal.com/settings/tokens
+MODAL_TOKEN_ID=
+MODAL_TOKEN_SECRET=
 ```
 
 ### 2. Install dependencies
@@ -82,7 +85,7 @@ npm test
 ### create
 
 ```js
-const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b"
+const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
 ```
 
 ### connect
