@@ -9,7 +9,7 @@ Allow users to pass custom templates when creating sandboxes across providers.
 - **E2B**: Uses `Sandbox.create(template, opts)` - template as first string parameter
 - **Daytona**: Uses constructor with `CreateSandboxFromSnapshotParams.snapshot` property  
 - **CodeSandbox**: Uses `CreateSandboxTemplateSourceOpts.id` for template ID
-- **Modal**: Uses prefix-based routing (`aws/`, `gcp/`, `docker/`) to determine image source
+- **Modal**: Uses prefix-based routing (`aws/`, `gcp/`, `docker/`) with environment variable-based secret management
 
 ## Current Architecture Analysis
 
@@ -80,8 +80,38 @@ imageFromGcpArtifactRegistry(tag: string, secret: Secret): Promise<Image>;
 1. E2B: Pass template directly to `Sandbox.create()`
 2. Daytona: Set `snapshot` property in creation params
 3. CodeSandbox: Set `id` in `CreateSandboxTemplateSourceOpts` 
-4. Modal: Implement prefix-based routing for different image registries
+4. Modal: Implement prefix-based routing with proper secret management
+   - `aws/` prefix: Uses `MODAL_AWS_SECRET_NAME` environment variable
+   - `gcp/` prefix: Uses `MODAL_GCP_SECRET_NAME` environment variable  
+   - `docker/` prefix or no prefix: Uses optional `MODAL_DOCKER_SECRET_NAME`
 
 ### Phase 3: Integration Testing
 1. Verify backward compatibility
 2. Test template functionality per provider
+
+## Environment Variables Required
+
+### Modal Provider Additional Variables
+When using Modal with custom templates from private registries:
+- `MODAL_AWS_SECRET_NAME` - Required for `aws/` prefixed templates 
+- `MODAL_GCP_SECRET_NAME` - Required for `gcp/` prefixed templates
+- `MODAL_DOCKER_SECRET_NAME` - Optional for private Docker registry authentication
+
+**Note**: You must first create these secrets in Modal before using them. See [Modal Secrets Documentation](https://modal.com/docs/guide/secrets#interact-with-secrets-from-the-command-line) for instructions on how to create and manage secrets via the command line.
+
+## Success Criteria
+- [x] `Sandbox.create("e2b", { template: "custom" })` works
+- [x] `Sandbox.create("daytona", { template: "snapshot-id" })` works  
+- [x] `Sandbox.create("codesandbox", { template: "template-id" })` works
+- [x] `Sandbox.create("modal", { template: "node:18-alpine" })` works with Docker registry
+- [x] `Sandbox.create("modal", { template: "docker/node:18-alpine" })` works with explicit prefix
+- [x] `Sandbox.create("modal", { template: "aws/my-image" })` works with proper `MODAL_AWS_SECRET_NAME` env var
+- [x] `Sandbox.create("modal", { template: "gcp/my-image" })` works with proper `MODAL_GCP_SECRET_NAME` env var
+- [x] Modal throws descriptive errors when required environment variables are missing
+- [x] `Sandbox.create("provider")` continues working (backward compatibility)
+
+## Risk Assessment
+- **Low Risk**: Optional parameter maintains backward compatibility
+- **Provider Dependencies**: Each provider handles templates differently - abstracted away
+- **Registry Support**: Modal supports multiple image registries with proper secret management
+- **Environment Variables**: Clear error messages when required Modal secrets are not configured
