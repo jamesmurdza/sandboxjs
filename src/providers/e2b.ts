@@ -4,9 +4,11 @@ import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
 export class E2BSandbox extends Sandbox {
   protected sandbox: E2B.Sandbox | null = null;
 
-  async init(id?: string): Promise<void> {
+  async init(id?: string, template?: string): Promise<void> {
     if (id) {
       this.sandbox = await E2B.Sandbox.connect(id);
+    } else if (template) {
+      this.sandbox = await E2B.Sandbox.create(template);
     } else {
       this.sandbox = await E2B.Sandbox.create();
     }

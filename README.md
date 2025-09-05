@@ -10,6 +10,9 @@ import { Sandbox } from "@gitwit/sandbox";
 // Create a new sandbox
 const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
 
+// Create a sandbox with custom template
+const customSandbox = await Sandbox.create("e2b", { template: "my-template-id" });
+
 // Connect to an existing sandbox
 // const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
@@ -85,7 +88,11 @@ npm test
 ### create
 
 ```js
+// Create default sandbox
 const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
+
+// Create sandbox with custom template
+const e2bSandbox = await Sandbox.create("e2b", { template: "my-template-id" });
 ```
 
 ### connect

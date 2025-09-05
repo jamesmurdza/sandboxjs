@@ -10,12 +10,14 @@ export class DaytonaSandbox extends Sandbox {
     this.daytona = new Daytona.Daytona();
   }
 
-  async init(id?: string): Promise<void> {
+  async init(id?: string, template?: string): Promise<void> {
     if (id) {
       this.sandbox = await this.daytona.get(id);
       if (!this.sandbox) {
         throw new Error("Sandbox not found");
       }
+    } else if (template) {
+      this.sandbox = await this.daytona.create({ snapshot: template });
     } else {
       this.sandbox = await this.daytona.create();
     }

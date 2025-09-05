@@ -1,4 +1,4 @@
-import { App, Sandbox as ModalSDKSandbox, Image } from "modal";
+import { App, Sandbox as ModalSDKSandbox, Image, Secret } from "modal";
 import dotenv from "dotenv";
 import { Sandbox, Terminal, FileEntry } from "../sandbox.js";
 
@@ -20,12 +20,40 @@ export class ModalSandbox extends Sandbox {
     return this.app;
   }
 
-  async init(id?: string): Promise<void> {
+  async init(id?: string, template?: string): Promise<void> {
     const app = await this.initApp();
+    
     const image = id 
-      ? new Image(id)
-      : await app.imageFromRegistry("python:3.13-slim");
+      ? new Image(id) 
+      : await this.getImageFromTemplate(app, template || "python:3.13-slim");
+
     this.sandbox = await app.createSandbox(image);
+  }
+
+  private async getImageFromTemplate(app: App, template: string): Promise<Image> {
+    if (template.startsWith("aws/")) {
+      const secretName = process.env.MODAL_AWS_SECRET_NAME;
+      if (!secretName) {
+        throw new Error("MODAL_AWS_SECRET_NAME environment variable is not set");
+      }
+      const tag = template.substring(4);
+      return await app.imageFromAwsEcr(tag, await Secret.fromName(secretName));
+    } else if (template.startsWith("gcp/")) {
+      const secretName = process.env.MODAL_GCP_SECRET_NAME;
+      if (!secretName) {
+        throw new Error("MODAL_GCP_SECRET_NAME environment variable is not set");
+      }
+      const tag = template.substring(4);
+      return await app.imageFromGcpArtifactRegistry(tag, await Secret.fromName(secretName));
+    } else {
+      let secret = undefined;
+      const secretName = process.env.MODAL_DOCKER_SECRET_NAME;
+      if (secretName) {
+        secret = await Secret.fromName(secretName);
+      }
+      const tag = template.startsWith("docker/") ? template.substring(7) : template;
+      return await app.imageFromRegistry(tag, secret);
+    }
   }
 
   async runCommand(command: string): Promise<string> {

@@ -20,11 +20,16 @@ export class CodeSandboxSandbox extends Sandbox {
     this.sdk = new CodeSandbox.CodeSandbox(apiKey);
   }
 
-  async init(id?: string): Promise<void> {
+  async init(id?: string, template?: string): Promise<void> {
     if (id) {
       console.warn("Now hibernating and resuming the sandbox, since CodeSandbox does not support initializing a running sandbox from its ID");
       await this.sdk.sandboxes.hibernate(id);
       this.sandbox = await this.sdk.sandboxes.resume(id);
+    } else if (template) {
+      this.sandbox = await this.sdk.sandboxes.create({
+        source: "template",
+        id: template
+      });
     } else {
       this.sandbox = await this.sdk.sandboxes.create();
     }
