@@ -7,7 +7,7 @@ dotenv.config();
 export class CodeSandboxSandbox extends Sandbox {
   private sdk: CodeSandbox.CodeSandbox;
   protected sandbox: CodeSandbox.Sandbox | null = null;
-  private session: CodeSandbox.WebSocketSession | null = null;
+  private session: CodeSandbox.SandboxClient | null = null;
 
   constructor() {
     super();
@@ -22,20 +22,17 @@ export class CodeSandboxSandbox extends Sandbox {
 
   async init(id?: string, template?: string): Promise<void> {
     if (id) {
-      console.warn("Now hibernating and resuming the sandbox, since CodeSandbox does not support initializing a running sandbox from its ID");
-      await this.sdk.sandboxes.hibernate(id);
       this.sandbox = await this.sdk.sandboxes.resume(id);
     } else if (template) {
       this.sandbox = await this.sdk.sandboxes.create({
-        source: "template",
-        id: template
+        id: template,
       });
     } else {
       this.sandbox = await this.sdk.sandboxes.create();
     }
   }
 
-  private async ensureSession(): Promise<CodeSandbox.WebSocketSession> {
+  private async ensureSession(): Promise<CodeSandbox.SandboxClient> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
     }
@@ -139,7 +136,7 @@ export class CodeSandboxTerminal extends Terminal {
   }
 
   static async create(
-    session: CodeSandbox.WebSocketSession,
+    session: CodeSandbox.SandboxClient,
     onOutput: (output: string) => void
   ): Promise<CodeSandboxTerminal> {
     const terminal = await session.terminals.create();

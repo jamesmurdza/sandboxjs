@@ -26,7 +26,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@codesandbox/sdk": "^1.1.6",
+    "@codesandbox/sdk": "^2.1.0",
     "@daytonaio/sdk": "^0.21.1",
     "@e2b/code-interpreter": "^1.2.0-beta.4",
     "modal": "^0.3.15"
