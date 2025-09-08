@@ -1,5 +1,15 @@
 import * as Daytona from "@daytonaio/sdk";
+import { writeFile, unlink } from 'fs/promises';
+import { join } from 'path';
 import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
+import { readTemplate, executeCommand } from '../template-builder/utils.js';
+
+export interface DaytonaBuildOptions {
+  cpu?: number;             // Default: 1 (cores)
+  memory?: number;          // Default: 1 (GB)
+  disk?: number;            // Default: 3 (GB)
+  image?: string;           // Image name for snapshot
+}
 
 export class DaytonaSandbox extends Sandbox {
   private daytona: Daytona.Daytona;
@@ -24,6 +34,31 @@ export class DaytonaSandbox extends Sandbox {
     if (this.sandbox.state == Daytona.SandboxState.STOPPED) {
       await this.sandbox.start();
     }
+  }
+
+  static async buildTemplate(
+    directory: string,
+    name: string,
+    options?: DaytonaBuildOptions
+  ): Promise<void> {
+    const { dockerfile, otherPathNames } = await readTemplate(directory);
+
+    const tempDockerfilePath = join(directory, 'Dockerfile.daytona');
+    await writeFile(tempDockerfilePath, dockerfile.content);
+    
+    const args = [
+      'snapshot', 'create', name,
+      '-f', tempDockerfilePath,
+      ...(dockerfile.entrypoint ? ['-e', `"${dockerfile.entrypoint}"`] : []),
+      ...(options?.cpu ? ['--cpu', options.cpu.toString()] : []),
+      ...(options?.memory ? ['--memory', options.memory.toString()] : []),
+      ...(options?.disk ? ['--disk', options.disk.toString()] : []),
+      ...(options?.image ? ['-i', options.image] : []),
+      ...otherPathNames.flatMap(p => ['-c', p])
+    ];
+    
+    await executeCommand('daytona', args, directory);
+    await unlink(tempDockerfilePath);
   }
 
   private ensureConnected(): Daytona.Sandbox {
