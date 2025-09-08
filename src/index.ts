@@ -8,3 +8,4 @@ registerProvider("codesandbox", providers.CodeSandboxSandbox);
 registerProvider("modal", providers.ModalSandbox);
 
 export { Sandbox };
+export { buildTemplate } from "./template-builder/index.js";

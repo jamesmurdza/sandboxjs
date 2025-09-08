@@ -1,5 +1,17 @@
 import * as E2B from "@e2b/code-interpreter";
+import { writeFile, unlink } from 'fs/promises';
+import { join } from 'path';
 import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
+import { readTemplate, executeCommand } from '../template-builder/utils.js';
+
+export interface E2BBuildOptions {
+  cpuCount?: number;        // Default: 2
+  memoryMB?: number;        // Default: 512, must be even
+  buildArgs?: Record<string, string>; // Format: <varname>=<value>
+  noCache?: boolean;        // Skip build cache
+  teamId?: string;          // Team ID from E2B dashboard
+  readyCommand?: string;    // Command that must exit 0 for readiness
+}
 
 export class E2BSandbox extends Sandbox {
   protected sandbox: E2B.Sandbox | null = null;
@@ -12,6 +24,35 @@ export class E2BSandbox extends Sandbox {
     } else {
       this.sandbox = await E2B.Sandbox.create();
     }
+  }
+
+  static async buildTemplate(
+    directory: string,
+    name: string,
+    options?: E2BBuildOptions
+  ): Promise<void> {
+    const { dockerfile } = await readTemplate(directory);
+    
+    const tempDockerfilePath = join(directory, 'Dockerfile.e2b');
+    await writeFile(tempDockerfilePath, dockerfile.content);
+    
+    const args = [
+      'template', 'build',
+      '-p', directory,
+      '-d', "Dockerfile.e2b",
+      '-n', name,
+      ...(dockerfile.entrypoint ? ['-c', `"${dockerfile.entrypoint}"`] : []),
+      ...(options?.cpuCount ? ['--cpu-count', options.cpuCount.toString()] : []),
+      ...(options?.memoryMB ? ['--memory-mb', options.memoryMB.toString()] : []),
+      ...(options?.readyCommand ? ['--ready-cmd', `"${options.readyCommand}"`] : []),
+      ...(options?.teamId ? ['-t', `"${options.teamId}"`] : []),
+      ...(options?.noCache ? ['--no-cache'] : []),
+      ...(options?.buildArgs ? 
+        Object.entries(options.buildArgs).flatMap(([k, v]) => ['--build-arg', `"${k}=${v}"`]) : [])
+    ];
+    
+    await executeCommand('e2b', args, directory);
+    await unlink(tempDockerfilePath);
   }
 
   private ensureConnected(): E2B.Sandbox {
