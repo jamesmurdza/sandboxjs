@@ -1,8 +1,9 @@
 import * as E2B from "@e2b/code-interpreter";
-import { writeFile, unlink } from 'fs/promises';
+import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
-import { readTemplate, executeCommand } from '../template-builder/utils.js';
+import { randomUUID } from "crypto";
+import { findDockerfileName, parseDockerfile, executeCommand, pathExists } from '../template-builder/utils.js';
 
 export interface E2BBuildOptions {
   cpuCount?: number;        // Default: 2
@@ -29,30 +30,46 @@ export class E2BSandbox extends Sandbox {
   static async buildTemplate(
     directory: string,
     name: string,
-    options?: E2BBuildOptions
+    options?: E2BBuildOptions & {
+      onLogs?: (chunk: string) => void;
+    }
   ): Promise<void> {
-    const { dockerfile } = await readTemplate(directory);
+    if (!options?.teamId && !(await pathExists(join(directory, 'e2b.toml')))) {
+      throw new Error('e2b.toml configuration file not found. Team ID is required in options to build E2B template.');
+    }
+
+    const dockerfileName = await findDockerfileName(directory);
+    const dockerfilePath = join(directory, dockerfileName);
     
-    const tempDockerfilePath = join(directory, 'Dockerfile.e2b');
-    await writeFile(tempDockerfilePath, dockerfile.content);
+    const tempDockerfileName = `${randomUUID()}.Dockerfile`
+    const tempDockerfilePath = join(directory, tempDockerfileName)
+    const dockerfile = parseDockerfile(await readFile(dockerfilePath, 'utf-8'));
     
-    const args = [
-      'template', 'build',
-      '-p', directory,
-      '-d', "Dockerfile.e2b",
-      '-n', name,
-      ...(dockerfile.entrypoint ? ['-c', `"${dockerfile.entrypoint}"`] : []),
-      ...(options?.cpuCount ? ['--cpu-count', options.cpuCount.toString()] : []),
-      ...(options?.memoryMB ? ['--memory-mb', options.memoryMB.toString()] : []),
-      ...(options?.readyCommand ? ['--ready-cmd', `"${options.readyCommand}"`] : []),
-      ...(options?.teamId ? ['-t', `"${options.teamId}"`] : []),
-      ...(options?.noCache ? ['--no-cache'] : []),
-      ...(options?.buildArgs ? 
-        Object.entries(options.buildArgs).flatMap(([k, v]) => ['--build-arg', `"${k}=${v}"`]) : [])
-    ];
-    
-    await executeCommand('e2b', args, directory);
-    await unlink(tempDockerfilePath);
+    try {
+      await writeFile(tempDockerfilePath, dockerfile.content);
+      
+      const args = [
+        'template', 'build',
+        '-p', directory,
+        '-d', tempDockerfileName,
+        '-n', name,
+        ...(dockerfile.entrypoint ? ['-c', `"${dockerfile.entrypoint}"`] : []),
+        ...(options?.cpuCount ? ['--cpu-count', options.cpuCount.toString()] : []),
+        ...(options?.memoryMB ? ['--memory-mb', options.memoryMB.toString()] : []),
+        ...(options?.readyCommand ? ['--ready-cmd', `"${options.readyCommand}"`] : []),
+        ...(options?.teamId ? ['-t', `"${options.teamId}"`] : []),
+        ...(options?.noCache ? ['--no-cache'] : []),
+        ...(options?.buildArgs ? 
+          Object.entries(options.buildArgs).flatMap(([k, v]) => ['--build-arg', `"${k}=${v}"`]) : [])
+      ];
+      
+      await executeCommand('e2b', args, {
+        cwd: directory,
+        onLogs: options?.onLogs || console.log
+      });
+    } finally {
+      await unlink(tempDockerfilePath);
+    }
   }
 
   private ensureConnected(): E2B.Sandbox {
@@ -122,7 +139,7 @@ export class E2BSandbox extends Sandbox {
   }
 
   async getPreviewUrl(port: number): Promise<string> {
-    return this.ensureConnected().getHost(port);
+    return `https://${this.ensureConnected().getHost(port)}`;
   }
 
   async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {

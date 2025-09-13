@@ -27,7 +27,8 @@
   },
   "dependencies": {
     "@codesandbox/sdk": "^2.1.0",
-    "@daytonaio/sdk": "^0.21.1",
+    "@daytonaio/sdk": "^0.27.1",
+    "@e2b/cli": "^2.1.0",
     "@e2b/code-interpreter": "^1.2.0-beta.4",
     "docker-file-parser": "^1.0.7",
     "modal": "^0.3.15"
