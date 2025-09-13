@@ -5,14 +5,18 @@ export function buildTemplate(
   provider: 'e2b',
   directory: string,
   name: string,
-  options?: E2BBuildOptions
+  options?: E2BBuildOptions & {
+    onLogs?: (chunk: string) => void;
+  }
 ): Promise<void>;
 
 export function buildTemplate(
   provider: 'daytona',
   directory: string,
   name: string,
-  options?: DaytonaBuildOptions
+  options?: DaytonaBuildOptions & {
+    onLogs?: (chunk: string) => void;
+  }
 ): Promise<void>;
 
 export async function buildTemplate(
