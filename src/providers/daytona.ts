@@ -1,14 +1,14 @@
 import * as Daytona from "@daytonaio/sdk";
-import { writeFile, unlink } from 'fs/promises';
+import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
-import { readTemplate, executeCommand } from '../template-builder/utils.js';
+import { findDockerfileName, parseDockerfile } from '../template-builder/utils.js';
 
 export interface DaytonaBuildOptions {
-  cpu?: number;             // Default: 1 (cores)
-  memory?: number;          // Default: 1 (GB)
-  disk?: number;            // Default: 3 (GB)
-  image?: string;           // Image name for snapshot
+  cpu?: number;
+  gpu?: number;
+  memory?: number;
+  disk?: number;
 }
 
 export class DaytonaSandbox extends Sandbox {
@@ -27,9 +27,9 @@ export class DaytonaSandbox extends Sandbox {
         throw new Error("Sandbox not found");
       }
     } else if (template) {
-      this.sandbox = await this.daytona.create({ snapshot: template });
+      this.sandbox = await this.daytona.create({ snapshot: template, public: true });
     } else {
-      this.sandbox = await this.daytona.create();
+      this.sandbox = await this.daytona.create({ public: true });
     }
     if (this.sandbox.state == Daytona.SandboxState.STOPPED) {
       await this.sandbox.start();
@@ -39,26 +39,46 @@ export class DaytonaSandbox extends Sandbox {
   static async buildTemplate(
     directory: string,
     name: string,
-    options?: DaytonaBuildOptions
+    options?: DaytonaBuildOptions & {
+      onLogs?: (chunk: string) => void;
+    }
   ): Promise<void> {
-    const { dockerfile, otherPathNames } = await readTemplate(directory);
+    const dockerfileName = await findDockerfileName(directory);
+    const dockerfilePath = join(directory, dockerfileName);
+    const originalContent = await readFile(dockerfilePath, 'utf-8')
+    
+    // Even when we pass path to custom dockerfile to Image.fromDockerfile,
+    // it still uses default "Dockerfile" if available.
+    // To resolve this, we will restore original content once build is completed.
+    const tempDockerfilePath = join(directory, 'Dockerfile');
+    const dockerfile = parseDockerfile(originalContent);
+    
+    try {
+      await writeFile(
+        tempDockerfilePath, 
+        dockerfile.content + `\nENTRYPOINT ${dockerfile.entrypoint}\n`
+      );
 
-    const tempDockerfilePath = join(directory, 'Dockerfile.daytona');
-    await writeFile(tempDockerfilePath, dockerfile.content);
-    
-    const args = [
-      'snapshot', 'create', name,
-      '-f', tempDockerfilePath,
-      ...(dockerfile.entrypoint ? ['-e', `"${dockerfile.entrypoint}"`] : []),
-      ...(options?.cpu ? ['--cpu', options.cpu.toString()] : []),
-      ...(options?.memory ? ['--memory', options.memory.toString()] : []),
-      ...(options?.disk ? ['--disk', options.disk.toString()] : []),
-      ...(options?.image ? ['-i', options.image] : []),
-      ...otherPathNames.flatMap(p => ['-c', p])
-    ];
-    
-    await executeCommand('daytona', args, directory);
-    await unlink(tempDockerfilePath);
+      const daytona = new Daytona.Daytona();
+      await daytona.snapshot.create(
+        {
+          name,
+          image: Daytona.Image.fromDockerfile(tempDockerfilePath),
+          resources: {
+            cpu: options?.cpu,
+            gpu: options?.gpu,
+            memory: options?.memory,
+            disk: options?.disk
+          }
+        }, 
+        { onLogs: options?.onLogs || console.log }
+      )
+    } finally {
+      await unlink(tempDockerfilePath);
+      if (dockerfileName === 'Dockerfile') {
+        await writeFile(dockerfilePath, originalContent);
+      }
+    }
   }
 
   private ensureConnected(): Daytona.Sandbox {
@@ -140,7 +160,11 @@ export class DaytonaSandbox extends Sandbox {
   }
 
   async getPreviewUrl(port: number): Promise<string> {
-    return (await this.ensureConnected().getPreviewLink(port)).url;
+    const sandbox = this.ensureConnected();
+    if (!sandbox.public) {
+      throw new Error("Sandbox is not public");
+    }
+    return (await sandbox.getPreviewLink(port)).url;
   }
 
   async createTerminal(onOutput: (output: string) => void): Promise<Terminal> {
