@@ -1,26 +1,14 @@
-import { buildTemplate, Sandbox } from "../index.js";
+import { Sandbox } from "../index.js";
+import { E2BSandbox } from "../providers/e2b.js";
+import { DaytonaSandbox } from "../providers/daytona.js";
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
-import * as readline from 'readline';
-
-function pressEnterToContinue(): Promise<void> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  return new Promise((resolve) => {
-    rl.question('Press Enter to continue...', () => {
-      rl.close();
-      resolve();
-    });
-  });
-}
-
-async function createExampleProject(projectName: string): Promise<string> {
-  const templateDir = join(tmpdir(), `sandbox-example-${projectName}-${Date.now()}`);
+async function createExampleTemplate(
+  provider: string
+): Promise<{ templateDir: string, templateName: string }> {
+  const templateDir = join(tmpdir(), `sandbox-example-${provider}-${Date.now()}`);
   
   await mkdir(templateDir, { recursive: true });
   
@@ -33,7 +21,7 @@ RUN chmod +x /start-server.sh
 WORKDIR /home/user
 
 # Copy package files
-COPY package*.json ./
+COPY package*.json .
 RUN npm install
 
 # Copy source code
@@ -64,7 +52,7 @@ const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'Hello from ${projectName} template!',
+    message: 'Hello from ${provider} example template!',
     timestamp: new Date().toISOString()
   });
 });
@@ -86,84 +74,90 @@ npm start
   await writeFile(join(templateDir, 'index.js'), appCode);
   await writeFile(join(templateDir, 'start-server.sh'), startServerScript);
   
-  console.log(`✅ Created example project at: ${templateDir}`);
-  return templateDir;
+  return { templateDir, templateName: `example-${Date.now().toString().slice(-6)}` };
 }
 
-async function runE2BExample() {
-  console.log(`\n--- E2B Template Building Example ---`);
-  
+async function buildAndTestExampleTemplate(provider: string, options?: any) {
+  let buildFn = null;
+  switch (provider) {
+    case 'e2b':
+      buildFn = E2BSandbox.buildTemplate;
+      break;
+    case 'daytona':
+      buildFn = DaytonaSandbox.buildTemplate;
+      break;
+    default:
+      throw new Error(`Template building not supported for provider: ${provider}`);
+  }
+  console.log(`\n==============================================`)
+  const { templateDir, templateName } = await createExampleTemplate(provider);
+  console.log(`Building ${provider} example template '${templateName}' from ${templateDir}`);
+
   try {
-    const templateDir = await createExampleProject('e2b');
-    const templateName = `example-${Date.now().toString().slice(-6)}`;
+    await buildFn(templateDir, templateName, options);
+    console.log(`✅ Successfully built ${provider} example template '${templateName}'`);
+  } catch (error) {
+    throw new Error(`❌ Failed to build ${provider} example template '${templateName}': ${error instanceof Error ? error.message : error}`);
+  }
+
+  let sandbox: Sandbox | null = null;
+  let sandboxId: string | null = null;
+  try {
+    sandbox = await Sandbox.create(provider, { template: templateName });
+    sandboxId = sandbox.id();
+    console.log(`✅ Successfully created ${provider} sandbox: ${sandboxId}`);
+  } catch (error) {
+    throw new Error(`❌ Failed to create ${provider} sandbox: ${error instanceof Error ? error.message : error}`);
+  }
     
-    console.log(`Building E2B template: ${templateName}`);
-    console.log(`Project directory: ${templateDir}`);
+  try {
+    const appUrl = await sandbox.getPreviewUrl(3000);
+    console.log(`App URL: ${appUrl}`);
+    const response = await fetch(appUrl);
+    const data = await response.json();
+    const expectedMessage = `Hello from ${provider} example template!`;
     
-    await buildTemplate('e2b', templateDir, templateName, {
+    if (data.message === expectedMessage) {
+      console.log(`✅ App is working correctly - received expected message`);
+    } else {
+      throw new Error(`❌ App response doesn't match expected message. \nExpected: "${expectedMessage}" \nReceived: "${data.message}"`);
+    }
+  } catch (error) {
+    throw new Error(`❌ Failed to test app: ${error instanceof Error ? error.message : error}`);
+  }
+
+  await sandbox.destroy();
+  console.log(`✅ Successfully destroyed ${provider} sandbox: ${sandboxId}`);
+}
+
+
+async function main() {
+  if (!process.env.DAYTONA_API_KEY) {
+    throw new Error('DAYTONA_API_KEY environment variable is required');
+  }
+  try {
+    await buildAndTestExampleTemplate('daytona', { cpu: 1, memory: 1, disk: 1 });
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
+  if (!process.env.E2B_API_KEY) {
+    throw new Error('E2B_API_KEY environment variable is required');
+  }
+
+  try {
+    await buildAndTestExampleTemplate('e2b', {
       cpuCount: 1,
       memoryMB: 512,
-      teamId: "<TEAM ID>",
+      teamId: undefined,
       buildArgs: {
         NODE_ENV: 'production'
       }
     });
-    
-    console.log(`✅ Successfully built E2B template: ${templateName}`);
-    return templateName;
   } catch (error) {
-    console.error('❌ E2B template building failed:', error instanceof Error ? error.message : error);
-  }
-}
-
-async function runDaytonaExample() {
-  console.log(`\n--- Daytona Template Building Example ---`);
-  
-  try {
-    const templateDir = await createExampleProject('daytona');
-    const templateName = `sandbox-example-daytona-${Date.now()}`;
-    
-    console.log(`Building Daytona snapshot: ${templateName}`);
-    console.log(`Project directory: ${templateDir}`);
-    
-    await buildTemplate('daytona', templateDir, templateName, {
-      cpu: 1,
-      memory: 1,
-      disk: 3
-    });
-    
-    console.log(`✅ Successfully built Daytona snapshot: ${templateName}`);
-  } catch (error) {
-    console.error('❌ Daytona template building failed:', error instanceof Error ? error.message : error);
-  }
-}
-
-async function main() {
-  console.log('🚀 Template Building Examples\n');
-  
-  // Note: These examples require the respective CLI tools to be installed and configured:
-  // - E2B: npm install -g @e2b/cli && e2b login
-  // - Daytona: Install Daytona CLI and authenticate
-  
-  console.log('📋 Prerequisites:');
-  console.log('- E2B: Install @e2b/cli globally and authenticate with e2b login');
-  console.log('- Daytona: Install Daytona CLI and authenticate');
-  console.log('- Ensure you have proper API keys/tokens configured\n');
-  
-  // Uncomment the examples you want to run:
-  
-  const templateName = await runE2BExample();
-  // const templateName = await runDaytonaExample();
-  if (templateName) {
-    const sandbox = await Sandbox.create('e2b', { template: templateName });
-    // const sandbox = await Sandbox.create('daytona', { template: templateName });
-    console.log(`✅ Successfully created E2B sandbox: ${sandbox.id()}`);
-    console.log(`App URL: ${await sandbox.getPreviewUrl(3000)}`);
-
-    await pressEnterToContinue();
-    
-    await sandbox.destroy();
-    console.log(`✅ Successfully destroyed E2B sandbox: ${sandbox.id()}`);
+    console.log(error);
+    return;
   }
 }
 
