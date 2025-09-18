@@ -16,14 +16,17 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.0.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@codesandbox/sdk": "^2.1.0",
