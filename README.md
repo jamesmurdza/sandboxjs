@@ -1,5 +1,7 @@
 # sandboxjs
 
+[![CI](https://github.com/gitwit/sandboxjs/actions/workflows/ci.yml/badge.svg)](https://github.com/gitwit/sandboxjs/actions/workflows/ci.yml)
+
 A unified interface for Linux-based cloud sandbox providers. It can be used to create the building blocks of AI agents that run code or perform other potentially unsafe operations.
 
 ## Usage
