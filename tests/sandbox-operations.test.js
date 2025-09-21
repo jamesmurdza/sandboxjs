@@ -151,7 +151,31 @@ providers.forEach(provider => {
       expect(fileExists).toBe(true);
     });
 
-    
+    // Environment variables
+    test(`create ${provider} sandbox with custom environment variables`, async () => {
+      const customEnvs = {
+        TEST_VAR: 'test_value',
+        NODE_ENV: 'testing',
+        CUSTOM_KEY: 'custom_value'
+      };
+
+      sandbox = await Sandbox.create(provider, {
+        envs: customEnvs
+      });
+
+      expect(sandbox).toBeDefined();
+      expect(sandbox.id()).toBeDefined();
+
+      // Verify environment variables are set
+      const testVarResult = await sandbox.runCommand('echo $TEST_VAR');
+      expect(testVarResult.trim()).toBe('test_value');
+
+      const nodeEnvResult = await sandbox.runCommand('echo $NODE_ENV');
+      expect(nodeEnvResult.trim()).toBe('testing');
+
+      const customKeyResult = await sandbox.runCommand('echo $CUSTOM_KEY');
+      expect(customKeyResult.trim()).toBe('custom_value');
+    }, 30000);
 
     // Delete sandbox
     test(`delete ${provider} sandbox`, async () => {

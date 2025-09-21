@@ -1,6 +1,6 @@
 import { App, Sandbox as ModalSDKSandbox, Image, Secret } from "modal";
 import dotenv from "dotenv";
-import { Sandbox, Terminal, FileEntry } from "../sandbox.js";
+import { Sandbox, Terminal, FileEntry, CreateSandboxOptions } from "../sandbox.js";
 
 dotenv.config();
 
@@ -20,12 +20,16 @@ export class ModalSandbox extends Sandbox {
     return this.app;
   }
 
-  async init(id?: string, template?: string): Promise<void> {
+  async init(id?: string, createOptions?: CreateSandboxOptions): Promise<void> {
+    if (createOptions?.envs) {
+      throw new Error("Modal does not support passing environment variables");
+    }
+
     const app = await this.initApp();
     
     const image = id 
       ? new Image(id) 
-      : await this.getImageFromTemplate(app, template || "python:3.13-slim");
+      : await this.getImageFromTemplate(app, createOptions?.template || "python:3.13-slim");
 
     this.sandbox = await app.createSandbox(image);
   }
