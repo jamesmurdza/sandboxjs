@@ -30,12 +30,12 @@ await sandbox.destroy();
 
 ## Provider Support
 
-| Provider        | File Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Directory Watch | Preview URLs | Pseudo-terminals | Destroy Sandbox | Build Templates |
-| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | --------------- | --------------- |
-| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅              | ✅              |
-| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅              | ✅              |
-| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌              | 🚧              |
-| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅              | 🚧              |
+| Provider        | File Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Directory Watch | Preview URLs | Pseudo-terminals | Env Variables | Destroy Sandbox | Build Templates |
+| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | --------------- | --------------- | --------------- |
+| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅              | ✅              | ✅              |
+| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅              | ✅              | ✅              |
+| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌              | ❌              | 🚧              |
+| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌              | ✅              | 🚧              |
 
 ## Getting Started
 
@@ -93,8 +93,11 @@ npm test
 // Create default sandbox
 const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
 
-// Create sandbox with custom template
-const e2bSandbox = await Sandbox.create("e2b", { template: "my-template-id" });
+// Create sandbox with additional parameters
+const e2bSandbox = await Sandbox.create("e2b", {
+  template: "my-template-id",
+  envs: { KEY: "value" }
+});
 ```
 
 ### connect
