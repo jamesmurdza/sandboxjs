@@ -1,6 +1,6 @@
 import * as CodeSandbox from "@codesandbox/sdk";
 import dotenv from "dotenv";
-import { Sandbox, Terminal, FileEntry } from "../sandbox.js";
+import { Sandbox, Terminal, FileEntry, CreateSandboxOptions } from "../sandbox.js";
 
 dotenv.config();
 
@@ -20,12 +20,16 @@ export class CodeSandboxSandbox extends Sandbox {
     this.sdk = new CodeSandbox.CodeSandbox(apiKey);
   }
 
-  async init(id?: string, template?: string): Promise<void> {
+  async init(id?: string, createOptions?: CreateSandboxOptions): Promise<void> {
+    if (createOptions?.envs) {
+      throw new Error("CodeSandbox does not support passing environment variables");
+    }
+
     if (id) {
       this.sandbox = await this.sdk.sandboxes.resume(id);
-    } else if (template) {
+    } else if (createOptions?.template) {
       this.sandbox = await this.sdk.sandboxes.create({
-        id: template,
+        id: createOptions.template,
       });
     } else {
       this.sandbox = await this.sdk.sandboxes.create();

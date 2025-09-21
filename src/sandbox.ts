@@ -5,16 +5,17 @@ export type FileEntry = {
   name: string;
 };
 
-export interface SandboxOptions {
+export interface CreateSandboxOptions {
   template?: string;
+  envs?: Record<string, string>;
 }
 
 export abstract class Sandbox {
   // Create a new sandbox instance
-  static async create(provider: string, options?: SandboxOptions) {
+  static async create(provider: string, options?: CreateSandboxOptions) {
     const Provider = getProvider(provider);
     const instance = new Provider();
-    await instance.init(undefined, options?.template);
+    await instance.init(undefined, options);
     return instance;
   }
 
@@ -32,7 +33,7 @@ export abstract class Sandbox {
   }
 
   // Create a new sandbox or connect to an existing one
-  protected abstract init(id?: string, template?: string): Promise<void>;
+  protected abstract init(id?: string, createOptions?: CreateSandboxOptions): Promise<void>;
 
   // Execute a command in the sandbox and return its output
   abstract runCommand(command: string): Promise<string>;

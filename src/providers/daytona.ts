@@ -1,7 +1,7 @@
 import * as Daytona from "@daytonaio/sdk";
 import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
+import { Sandbox, FileEntry, Terminal, CreateSandboxOptions } from "../sandbox.js";
 import { findDockerfileName, parseDockerfile } from '../template-builder/utils.js';
 
 export interface DaytonaBuildOptions {
@@ -20,16 +20,16 @@ export class DaytonaSandbox extends Sandbox {
     this.daytona = new Daytona.Daytona();
   }
 
-  async init(id?: string, template?: string): Promise<void> {
+  async init(id?: string, createOptions?: CreateSandboxOptions): Promise<void> {
     if (id) {
       this.sandbox = await this.daytona.get(id);
       if (!this.sandbox) {
         throw new Error("Sandbox not found");
       }
-    } else if (template) {
-      this.sandbox = await this.daytona.create({ snapshot: template, public: true });
+    } else if (createOptions?.template) {
+      this.sandbox = await this.daytona.create({ snapshot: createOptions.template, public: true, envVars: createOptions.envs });
     } else {
-      this.sandbox = await this.daytona.create({ public: true });
+      this.sandbox = await this.daytona.create({ public: true, envVars: createOptions?.envs });
     }
     if (this.sandbox.state == Daytona.SandboxState.STOPPED) {
       await this.sandbox.start();

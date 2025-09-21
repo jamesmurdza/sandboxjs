@@ -1,7 +1,7 @@
 import * as E2B from "@e2b/code-interpreter";
 import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { Sandbox, FileEntry, Terminal } from "../sandbox.js";
+import { Sandbox, FileEntry, Terminal, CreateSandboxOptions } from "../sandbox.js";
 import { randomUUID } from "crypto";
 import { findDockerfileName, parseDockerfile, executeCommand, pathExists } from '../template-builder/utils.js';
 
@@ -17,13 +17,13 @@ export interface E2BBuildOptions {
 export class E2BSandbox extends Sandbox {
   protected sandbox: E2B.Sandbox | null = null;
 
-  async init(id?: string, template?: string): Promise<void> {
+  async init(id?: string, createOptions?: CreateSandboxOptions): Promise<void> {
     if (id) {
       this.sandbox = await E2B.Sandbox.connect(id);
-    } else if (template) {
-      this.sandbox = await E2B.Sandbox.create(template);
+    } else if (createOptions?.template) {
+      this.sandbox = await E2B.Sandbox.create(createOptions.template, { envs: createOptions.envs });
     } else {
-      this.sandbox = await E2B.Sandbox.create();
+      this.sandbox = await E2B.Sandbox.create({ envs: createOptions?.envs });
     }
   }
 
