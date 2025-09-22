@@ -43,7 +43,8 @@ providers.forEach(provider => {
       sandbox = await Sandbox.create(provider);
 
       const result = await sandbox.runCommand('echo "Hello World"');
-      expect(result.trim()).toBe('Hello World');
+      expect(result.exitCode).toBe(0);
+      expect(result.output.trim()).toBe('Hello World');
     }, 20000);
 
     test('write via runCommand and read via connected sandbox', async () => {
@@ -56,10 +57,25 @@ providers.forEach(provider => {
 
       const sandbox2 = await Sandbox.connect(provider, sandbox.id());
       const output = await sandbox2.runCommand(`cat ${filename}`);
-      expect(output.trim()).toBe(content);
+      expect(output.exitCode).toBe(0);
+      expect(output.output.trim()).toBe(content);
 
       await sandbox2.destroy();
     }, 20000);
+
+    test(`run command that fails with ${provider}`, async () => {
+      sandbox = await Sandbox.create(provider);
+
+      const failResult = await sandbox.runCommand('nonexistentcommand12345');
+      expect(failResult.exitCode).toBe(127);
+    }, 30000);
+
+    test(`run background command with ${provider}`, async () => {
+      sandbox = await Sandbox.create(provider);
+
+      const sleepResult = await sandbox.runCommand('sleep 3', { background: true });
+      expect(sleepResult.pid).toBeDefined();
+    }, 30000);
 
     // Files
     test('read and write files', async () => {
@@ -168,13 +184,13 @@ providers.forEach(provider => {
 
       // Verify environment variables are set
       const testVarResult = await sandbox.runCommand('echo $TEST_VAR');
-      expect(testVarResult.trim()).toBe('test_value');
+      expect(testVarResult.output.trim()).toBe('test_value');
 
       const nodeEnvResult = await sandbox.runCommand('echo $NODE_ENV');
-      expect(nodeEnvResult.trim()).toBe('testing');
+      expect(nodeEnvResult.output.trim()).toBe('testing');
 
       const customKeyResult = await sandbox.runCommand('echo $CUSTOM_KEY');
-      expect(customKeyResult.trim()).toBe('custom_value');
+      expect(customKeyResult.output.trim()).toBe('custom_value');
     }, 30000);
 
     // Delete sandbox
