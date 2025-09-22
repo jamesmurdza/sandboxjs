@@ -19,7 +19,8 @@ const customSandbox = await Sandbox.create("e2b", { template: "my-template-id" }
 // const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
 // Run commands and interact with the sandbox
-console.log(await sandbox.runCommand("echo 'hello world'"));
+const { output } = await sandbox.runCommand("echo 'hello world'");
+console.log(output);
 console.log(await sandbox.listFiles("/"));
 
 // Suspend, resume and destroy the sandbox
@@ -108,8 +109,24 @@ const sandbox = await Sandbox.connect("daytona", "sandbox_id");
 
 ### runCommand
 
+Execute commands in the sandbox with support for background execution and command options.
+
 ```js
-console.log(await sandbox.runCommand("echo 'hello world'"));
+// Basic command execution
+const { exitCode, output } = await sandbox.runCommand("echo 'hello world'");
+console.log(output); // "hello world"
+console.log(exitCode); // 0
+
+// Command with options
+const result = await sandbox.runCommand("ls -la", {
+  cwd: "/tmp",
+  envs: { MY_VAR: "value" },
+  timeoutMs: 5000
+});
+
+// Background command execution
+const { pid } = await sandbox.runCommand("sleep 10", { background: true });
+console.log(`Background process started with PID: ${pid}`);
 ```
 
 ### suspend
@@ -223,5 +240,4 @@ const sandbox = await Sandbox.create('daytona', { template: 'my-snapshot' });
 ## Future Plans
 
 - Add support for watching file system changes
-- Add support for running commands in the background
 - Add support for running code
