@@ -1,6 +1,6 @@
 import { App, Sandbox as ModalSDKSandbox, Image, Secret } from "modal";
 import dotenv from "dotenv";
-import { Sandbox, Terminal, FileEntry, CreateSandboxOptions } from "../sandbox.js";
+import { Sandbox, Terminal, FileEntry, CreateSandboxOptions, RunCommandOptions } from "../sandbox.js";
 
 dotenv.config();
 
@@ -60,15 +60,36 @@ export class ModalSandbox extends Sandbox {
     }
   }
 
-  async runCommand(command: string): Promise<string> {
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: false }
+  ): Promise<{ exitCode: number; output: string }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background: true }
+  ): Promise<{ pid: number }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: boolean }
+  ): Promise<{ exitCode: number; output: string } | { pid: number }> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
     }
-    const process = await this.sandbox.exec(["sh", "-c", command], {
-      stdout: "pipe",
-      mode: "text"
-    });
-    return await process.stdout.readText();
+    if (options?.background) {
+      // For background commands, extract the PID and return it
+      const pidCommand = `nohup sh -c '${command}' & echo $!`;
+      const process = await this.sandbox.exec(
+        ["sh", "-c", pidCommand], { stdout: "pipe", mode: "text" }
+      );
+      const result = await process.stdout.readText();
+      const pid = parseInt(result.trim());
+      return { pid };
+    }
+    const process = await this.sandbox.exec(
+      ["sh", "-c", command], { stdout: "pipe", mode: "text" }
+    );
+    const output = await process.stdout.readText();
+    return { exitCode: process.returncode || 0, output };
   }
 
   id(): string {

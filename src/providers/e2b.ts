@@ -1,7 +1,7 @@
 import * as E2B from "@e2b/code-interpreter";
 import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { Sandbox, FileEntry, Terminal, CreateSandboxOptions } from "../sandbox.js";
+import { Sandbox, FileEntry, Terminal, CreateSandboxOptions, RunCommandOptions } from "../sandbox.js";
 import { randomUUID } from "crypto";
 import { findDockerfileName, parseDockerfile, executeCommand, pathExists } from '../template-builder/utils.js';
 
@@ -79,13 +79,52 @@ export class E2BSandbox extends Sandbox {
     return this.sandbox;
   }
 
-  async runCommand(command: string): Promise<string> {
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: false }
+  ): Promise<{ exitCode: number; output: string }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background: true }
+  ): Promise<{ pid: number }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: boolean }
+  ): Promise<{ exitCode: number; output: string } | { pid: number }> {
     if (!this.sandbox) {
       await this.init();
     }
     const sandbox = this.ensureConnected();
-    const result = await sandbox.commands.run(command);
-    return result.stdout;
+    let commonOpts = {
+      cwd: options?.cwd,
+      envs: options?.envs,
+      timeoutMs: options?.timeoutMs,
+    };
+
+    if (options?.background) {
+      const handle = await sandbox.commands.run(
+        command, { background: true, ...commonOpts }
+      );
+      return { pid: handle.pid };
+    } else {
+      try {
+        const result = await sandbox.commands.run(
+          command, { background: false, ...commonOpts }
+        );
+        return {
+          exitCode: result.exitCode,
+          output: result.error || result.stdout || result.stderr,
+        };
+      } catch (e) {
+        if (e instanceof E2B.CommandExitError) {
+          return {
+            exitCode: e.exitCode,
+            output: e.error || e.stdout || e.stderr,
+          };
+        }
+        throw e;
+      }
+    }
   }
 
   id(): string {
