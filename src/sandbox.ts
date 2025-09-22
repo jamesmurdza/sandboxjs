@@ -10,6 +10,13 @@ export interface CreateSandboxOptions {
   envs?: Record<string, string>;
 }
 
+export interface RunCommandOptions {
+  background?: boolean;
+  cwd?: string;
+  envs?: Record<string, string>;
+  timeoutMs?: number;
+}
+
 export abstract class Sandbox {
   // Create a new sandbox instance
   static async create(provider: string, options?: CreateSandboxOptions) {
@@ -35,8 +42,26 @@ export abstract class Sandbox {
   // Create a new sandbox or connect to an existing one
   protected abstract init(id?: string, createOptions?: CreateSandboxOptions): Promise<void>;
 
-  // Execute a command in the sandbox and return its output
-  abstract runCommand(command: string): Promise<string>;
+  /**
+   * Start a new command and wait until it finishes executing.
+   * 
+   * @param command Command to run
+   * @param options Options for running the command
+   */
+  abstract runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: false }
+  ): Promise<{ exitCode: number; output: string }>;
+  /**
+   * Start a new command in background and return its process ID.
+   * 
+   * @param command Command to run
+   * @param options Options for running the command
+   */
+  abstract runCommand(
+    command: string,
+    options?: RunCommandOptions & { background: true }
+  ): Promise<{ pid: number }>;
 
   // Get the sandbox ID
   abstract id(): string;

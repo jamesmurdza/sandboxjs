@@ -1,7 +1,7 @@
 import * as Daytona from "@daytonaio/sdk";
 import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { Sandbox, FileEntry, Terminal, CreateSandboxOptions } from "../sandbox.js";
+import { Sandbox, FileEntry, Terminal, CreateSandboxOptions, RunCommandOptions } from "../sandbox.js";
 import { findDockerfileName, parseDockerfile } from '../template-builder/utils.js';
 
 export interface DaytonaBuildOptions {
@@ -88,13 +88,37 @@ export class DaytonaSandbox extends Sandbox {
     return this.sandbox;
   }
 
-  async runCommand(command: string): Promise<string> {
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: false }
+  ): Promise<{ exitCode: number; output: string }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background: true }
+  ): Promise<{ pid: number }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: boolean }
+  ): Promise<{ exitCode: number; output: string } | { pid: number }> {
     if (!this.sandbox) {
       await this.init();
     }
     const sandbox = this.ensureConnected();
-    const response = await sandbox.process.executeCommand(command);
-    return response.result;
+
+    if (options?.background) {
+      // For background commands, extract the PID and return it
+      const pidCommand = `nohup sh -c '${command}' & echo $!`;
+      const response = await sandbox.process.executeCommand(
+        pidCommand, options?.cwd, options?.envs, options?.timeoutMs
+      );
+      const pid = parseInt(response.result.trim());
+      return { pid };
+    }
+    
+    const response = await sandbox.process.executeCommand(
+      command, options?.cwd, options?.envs, options?.timeoutMs
+    );
+    return { exitCode: response.exitCode, output: response.result };
   }
 
   id(): string {

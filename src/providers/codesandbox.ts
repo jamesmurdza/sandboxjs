@@ -1,6 +1,6 @@
 import * as CodeSandbox from "@codesandbox/sdk";
 import dotenv from "dotenv";
-import { Sandbox, Terminal, FileEntry, CreateSandboxOptions } from "../sandbox.js";
+import { Sandbox, Terminal, FileEntry, CreateSandboxOptions, RunCommandOptions } from "../sandbox.js";
 
 dotenv.config();
 
@@ -46,9 +46,37 @@ export class CodeSandboxSandbox extends Sandbox {
     return this.session;
   }
 
-  async runCommand(command: string): Promise<string> {
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: false }
+  ): Promise<{ exitCode: number; output: string }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background: true }
+  ): Promise<{ pid: number }>;
+  async runCommand(
+    command: string,
+    options?: RunCommandOptions & { background?: boolean }
+  ): Promise<{ exitCode: number; output: string } | { pid: number }> {
     const session = await this.ensureSession();
-    return await session.commands.run(command);
+    if (options?.background) {
+      // CodeSandbox runBackground doesn't return a PID, so we simulate it with a shell command
+      const pidCommand = `nohup sh -c '${command}' & echo $!`;
+      const result = await session.commands.run(
+        pidCommand, { cwd: options.cwd, env: options.envs }
+      );
+      const pid = parseInt(result.trim());
+      return { pid };
+    }
+    const output = await session.commands.run(
+      command, { cwd: options?.cwd, env: options?.envs }
+    );
+    // Get the actual exit code from the last command
+    const exitCodeResult = await session.commands.run(
+      'echo $?', { cwd: options?.cwd, env: options?.envs }
+    );
+    const exitCode = parseInt(exitCodeResult.trim()) || 0;
+    return { exitCode, output };
   }
 
   id(): string {
