@@ -1,0 +1,115 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Extract tag version
+        id: tag_version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.tag_version.outputs.VERSION }} --no-git-tag-version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+        env:
+          E2B_API_KEY: ${{ secrets.E2B_API_KEY }}
+          DAYTONA_API_KEY: ${{ secrets.DAYTONA_API_KEY }}
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Generate changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: ".github/changelog_config.json"
+          toTag: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update CHANGELOG.md
+        run: |
+          # Create new changelog entry
+          echo "## [${{ github.ref_name }}] - $(date +%Y-%m-%d)" > temp_changelog.md
+          echo "" >> temp_changelog.md
+          echo "${{ steps.changelog.outputs.changelog }}" >> temp_changelog.md
+          echo "" >> temp_changelog.md
+
+          # Create CHANGELOG.md if it doesn't exist
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)," >> CHANGELOG.md
+            echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+
+          # Prepend new entry to existing changelog (after header)
+          if [ $(wc -l < CHANGELOG.md) -gt 7 ]; then
+            head -n 7 CHANGELOG.md > new_changelog.md
+            cat temp_changelog.md >> new_changelog.md
+            tail -n +8 CHANGELOG.md >> new_changelog.md
+          else
+            cat CHANGELOG.md > new_changelog.md
+            cat temp_changelog.md >> new_changelog.md
+          fi
+          mv new_changelog.md CHANGELOG.md
+          rm temp_changelog.md
+
+      - name: Commit updated CHANGELOG.md
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git stash push -m "temp changelog changes"
+          git checkout master
+          git stash pop
+          git add CHANGELOG.md
+          git commit -m "chore: update CHANGELOG.md for ${{ github.ref_name }}" || exit 0
+          git push origin master
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.tag_version.outputs.VERSION }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          files: |
+            dist/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
