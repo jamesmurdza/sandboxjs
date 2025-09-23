@@ -81,13 +81,17 @@ export class SSHClient {
           // For foreground commands, collect output and wait for completion
           let output = '';
           let errorOutput = '';
+          let exitCode = 0;
 
           stream
-            .on('exit', (exitCode: number) => {
+            .on('close', () => {
               resolve({ 
                 exitCode: exitCode, 
                 output: output + (errorOutput ? '\nSTDERR:\n' + errorOutput : '')
               });
+            })
+            .on('exit', (code: number) => {
+              exitCode = code || 0;
             })
             .on('data', (data: Buffer) => {
               output += data.toString();
