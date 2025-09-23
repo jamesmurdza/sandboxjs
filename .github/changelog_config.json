@@ -1,0 +1,81 @@
+{
+    "categories": [
+        {
+            "title": "## 🚀 Features",
+            "labels": ["feature", "enhancement", "feat"]
+        },
+        {
+            "title": "## 🐛 Bug Fixes",
+            "labels": ["bug", "fix", "bugfix"]
+        },
+        {
+            "title": "## 📚 Documentation",
+            "labels": ["documentation", "docs"]
+        },
+        {
+            "title": "## 🔧 Maintenance",
+            "labels": ["maintenance", "refactor", "chore"]
+        },
+        {
+            "title": "## 🔒 Security",
+            "labels": ["security"]
+        },
+        {
+            "title": "## ⚡ Performance",
+            "labels": ["performance", "perf"]
+        },
+        {
+            "title": "## 🧪 Testing",
+            "labels": ["test", "testing"]
+        },
+        {
+            "title": "## 📦 Dependencies",
+            "labels": ["dependencies", "deps"]
+        },
+        {
+            "title": "## 🔄 Other Changes",
+            "labels": []
+        }
+    ],
+    "ignore_labels": [
+        "ignore-for-release",
+        "duplicate",
+        "question",
+        "invalid",
+        "wontfix"
+    ],
+    "sort": "ASC",
+    "template": "${{CHANGELOG}}",
+    "pr_template": "- ${{TITLE}} (#${{NUMBER}}) @${{AUTHOR}}",
+    "empty_template": "- No changes",
+    "label_extractor": [
+        {
+            "pattern": "^(feat|feature|enhancement)(\\([^)]*\\))?!?:",
+            "target": "feature",
+            "flags": "i"
+        },
+        {
+            "pattern": "^(fix|bugfix)(\\(.+\\))?!?:",
+            "target": "bug",
+            "flags": "i"
+        },
+        {
+            "pattern": "^(docs|doc)(\\(.+\\))?!?:",
+            "target": "documentation",
+            "flags": "i"
+        },
+        {
+            "pattern": "^(chore|refactor|style|test)(\\(.+\\))?!?:",
+            "target": "maintenance",
+            "flags": "i"
+        },
+        {
+            "pattern": "^(perf|performance)(\\(.+\\))?!?:",
+            "target": "performance",
+            "flags": "i"
+        }
+    ],
+    "max_tags_to_fetch": 200,
+    "max_pull_requests": 1000,
+    "max_back_track_time_days": 365
+}
