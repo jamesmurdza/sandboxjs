@@ -25,6 +25,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.0.3",
+    "@types/ssh2": "^1.15.5",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
@@ -34,6 +35,7 @@
     "@e2b/cli": "^2.1.0",
     "@e2b/code-interpreter": "^1.2.0-beta.4",
     "docker-file-parser": "^1.0.7",
-    "modal": "^0.3.15"
+    "modal": "^0.3.15",
+    "ssh2": "^1.17.0"
   }
 }

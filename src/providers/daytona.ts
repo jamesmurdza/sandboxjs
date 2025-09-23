@@ -3,6 +3,7 @@ import { readFile, writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { Sandbox, FileEntry, Terminal, CreateSandboxOptions, RunCommandOptions } from "../sandbox.js";
 import { findDockerfileName, parseDockerfile } from '../template-builder/utils.js';
+import { SSHClient } from "./utils/ssh.js";
 
 export interface DaytonaBuildOptions {
   cpu?: number;
@@ -13,11 +14,13 @@ export interface DaytonaBuildOptions {
 
 export class DaytonaSandbox extends Sandbox {
   private daytona: Daytona.Daytona;
+  private sshClient: SSHClient;
   protected sandbox: Daytona.Sandbox | null = null;
 
   constructor() {
     super();
     this.daytona = new Daytona.Daytona();
+    this.sshClient = new SSHClient();
   }
 
   async init(id?: string, createOptions?: CreateSandboxOptions): Promise<void> {
@@ -34,6 +37,8 @@ export class DaytonaSandbox extends Sandbox {
     if (this.sandbox.state == Daytona.SandboxState.STOPPED) {
       await this.sandbox.start();
     }
+    const sshAccess = await this.sandbox.createSshAccess();
+    await this.sshClient.connect({ host: 'ssh.app.daytona.io', username: sshAccess.token });
   }
 
   static async buildTemplate(
@@ -54,10 +59,11 @@ export class DaytonaSandbox extends Sandbox {
     const dockerfile = parseDockerfile(originalContent);
     
     try {
-      await writeFile(
-        tempDockerfilePath, 
-        dockerfile.content + `\nENTRYPOINT ${dockerfile.entrypoint}\n`
-      );
+      let content = dockerfile.content
+      if (dockerfile.entrypoint) {
+        content += `\nENTRYPOINT ${dockerfile.entrypoint}\n`
+      }
+      await writeFile(tempDockerfilePath, content);
 
       const daytona = new Daytona.Daytona();
       await daytona.snapshot.create(
@@ -103,22 +109,10 @@ export class DaytonaSandbox extends Sandbox {
     if (!this.sandbox) {
       await this.init();
     }
-    const sandbox = this.ensureConnected();
-
     if (options?.background) {
-      // For background commands, extract the PID and return it
-      const pidCommand = `nohup sh -c '${command}' & echo $!`;
-      const response = await sandbox.process.executeCommand(
-        pidCommand, options?.cwd, options?.envs, options?.timeoutMs
-      );
-      const pid = parseInt(response.result.trim());
-      return { pid };
+      return await this.sshClient.executeCommand(command, { ...options, background: true })
     }
-    
-    const response = await sandbox.process.executeCommand(
-      command, options?.cwd, options?.envs, options?.timeoutMs
-    );
-    return { exitCode: response.exitCode, output: response.result };
+    return await this.sshClient.executeCommand(command, { ...options, background: false });
   }
 
   id(): string {
