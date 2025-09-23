@@ -111,14 +111,23 @@ export class CodeSandboxSandbox extends Sandbox {
     this.sandbox = null;
   }
 
-  async readFile(path: string): Promise<string> {
+  async readFile(path: string, options?: { format: 'text' }): Promise<string>;
+  async readFile(path: string, options?: { format: 'bytes' }): Promise<Uint8Array>;
+  async readFile(path: string, options?: { format: 'text' | 'bytes' }): Promise<string | Uint8Array> {
     const session = await this.ensureSession();
+    if (options?.format === 'bytes') {
+      return await session.fs.readFile(path);
+    }
     return await session.fs.readTextFile(path);
   }
 
-  async writeFile(path: string, content: string): Promise<void> {
+  async writeFile(path: string, content: string | Uint8Array): Promise<void> {
     const session = await this.ensureSession();
-    await session.fs.writeTextFile(path, content);
+    if (content instanceof Uint8Array) {
+      await session.fs.writeFile(path, content);
+    } else {
+      await session.fs.writeTextFile(path, content);
+    }
   }
 
   async listFiles(path: string): Promise<FileEntry[]> {

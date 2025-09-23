@@ -149,11 +149,16 @@ export class E2BSandbox extends Sandbox {
     }
   }
 
-  async readFile(path: string): Promise<string> {
+  async readFile(path: string, options?: { format: 'text' }): Promise<string>;
+  async readFile(path: string, options?: { format: 'bytes' }): Promise<Uint8Array>;
+  async readFile(path: string, options?: { format: 'text' | 'bytes' }): Promise<string | Uint8Array> {
+    if (options?.format === 'bytes') {
+      return await this.ensureConnected().files.read(path, {format: 'bytes'});
+    }
     return await this.ensureConnected().files.read(path);
   }
 
-  async writeFile(path: string, content: string): Promise<void> {
+  async writeFile(path: string, content: string | Uint8Array): Promise<void> {
     await this.ensureConnected().files.write(path, content);
   }
 
