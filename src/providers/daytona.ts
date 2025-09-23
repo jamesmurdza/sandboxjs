@@ -148,12 +148,17 @@ export class DaytonaSandbox extends Sandbox {
     }
   }
 
-  async readFile(path: string): Promise<string> {
+  async readFile(path: string, options?: { format: 'text' }): Promise<string>;
+  async readFile(path: string, options?: { format: 'bytes' }): Promise<Uint8Array>;
+  async readFile(path: string, options?: { format: 'text' | 'bytes' }): Promise<string | Uint8Array> {
     const response = await this.ensureConnected().fs.downloadFile(path);
+    if (options?.format === 'bytes') {
+      return new Uint8Array(response);
+    }
     return response.toString();
   }
 
-  async writeFile(path: string, content: string): Promise<void> {
+  async writeFile(path: string, content: string | Uint8Array): Promise<void> {
     await this.ensureConnected().fs.uploadFile(Buffer.from(content), path);
   }
 

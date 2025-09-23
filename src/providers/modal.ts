@@ -136,7 +136,9 @@ export class ModalSandbox extends Sandbox {
     this.imageId = null;
   }
 
-  async readFile(path: string): Promise<string> {
+  async readFile(path: string, options?: { format: 'text' }): Promise<string>;
+  async readFile(path: string, options?: { format: 'bytes' }): Promise<Uint8Array>;
+  async readFile(path: string, options?: { format: 'text' | 'bytes' }): Promise<string | Uint8Array> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
     }
@@ -144,6 +146,9 @@ export class ModalSandbox extends Sandbox {
     const handle = await this.sandbox.open(path, "r");
     try {
       const content = await handle.read();
+      if (options?.format === 'bytes') {
+        return content;
+      }
       const decoder = new TextDecoder();
       return decoder.decode(content);
     } finally {
@@ -151,15 +156,17 @@ export class ModalSandbox extends Sandbox {
     }
   }
 
-  async writeFile(path: string, content: string): Promise<void> {
+  async writeFile(path: string, content: string | Uint8Array): Promise<void> {
     if (!this.sandbox) {
       throw new Error("Sandbox not initialized");
     }
 
     const handle = await this.sandbox.open(path, "w");
     try {
-      const encoder = new TextEncoder();
-      await handle.write(encoder.encode(content));
+      const bytes = content instanceof Uint8Array 
+        ? content 
+        : new TextEncoder().encode(content);
+      await handle.write(bytes);
     } finally {
       await handle.close();
     }

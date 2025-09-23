@@ -76,8 +76,9 @@ export abstract class Sandbox {
   abstract destroy(): Promise<void>;
 
   // File operations
-  abstract readFile(path: string): Promise<string>;
-  abstract writeFile(path: string, content: string): Promise<void>;
+  abstract readFile(path: string, options?: { format: 'text' }): Promise<string>;
+  abstract readFile(path: string, options?: { format: 'bytes' }): Promise<Uint8Array>;
+  abstract writeFile(path: string, content: string | Uint8Array): Promise<void>;
   abstract listFiles(path: string): Promise<Array<FileEntry>>;
   abstract moveFile(path: string, newPath: string): Promise<void>;
   abstract deleteFile(path: string): Promise<void>;
