@@ -52,17 +52,22 @@ export class SSHClient {
     options?: RunCommandOptions & { background?: boolean }
   ): Promise<{ exitCode: number; output: string } | { pid: number }> {
     return new Promise((resolve, reject) => {
-      // For background execution, append nohup and & to run in background
-      const finalCommand = options?.background ? `nohup sh -c '${command}' > /dev/null 2>&1 & echo $!` : command;
+      let finalCommand: string;
+      
+      if (options?.background) {
+        finalCommand = `nohup sh -c '${command}' > /dev/null 2>&1 & echo $!`;
+      } else {
+        // Wrap command to capture exit code reliably
+        finalCommand = `${command}; echo "EXIT_CODE:$?"`;
+      }
       
       this.conn.exec(finalCommand, (err, stream) => {
         if (err) {
           reject(err);
           return;
         }
-
+  
         if (options?.background) {
-          // For background commands, we just need the PID
           let pidOutput = '';
           
           stream
@@ -78,20 +83,34 @@ export class SSHClient {
               pidOutput += data.toString();
             });
         } else {
-          // For foreground commands, collect output and wait for completion
           let output = '';
           let errorOutput = '';
-          let exitCode = 0;
-
+  
           stream
             .on('close', () => {
+              // Parse exit code by searching from the end
+              const lines = output.split('\n');
+              let exitCodeLineIndex = -1;
+              let exitCode = 0;
+
+              for (let i = lines.length - 1; i >= 0; i--) {
+                if (lines[i].startsWith('EXIT_CODE:')) {
+                  exitCodeLineIndex = i;
+                  exitCode = parseInt(lines[i].split(':')[1]) || 0;
+                  break;
+                }
+              }
+
+              if (exitCodeLineIndex !== -1) {
+                // Remove the exit code line from output
+                lines.splice(exitCodeLineIndex, 1);
+                output = lines.join('\n');
+              }
+              
               resolve({ 
-                exitCode: exitCode, 
+                exitCode, 
                 output: output + (errorOutput ? '\nSTDERR:\n' + errorOutput : '')
               });
-            })
-            .on('exit', (code: number) => {
-              exitCode = code || 0;
             })
             .on('data', (data: Buffer) => {
               output += data.toString();
