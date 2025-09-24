@@ -1,6 +1,6 @@
 {
   "name": "@gitwit/sandbox",
-  "version": "0.1.1",
+  "version": "0.0.0",
   "description": "A unified interface for Linux-based cloud sandbox providers.",
   "type": "module",
   "main": "dist/index.js",
