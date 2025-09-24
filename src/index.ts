@@ -1,4 +1,3 @@
-import { Sandbox } from "./sandbox.js";
 import * as providers from "./providers/index.js";
 import { registerProvider } from "./registry.js";
 
@@ -7,5 +6,6 @@ registerProvider("daytona", providers.DaytonaSandbox);
 registerProvider("codesandbox", providers.CodeSandboxSandbox);
 registerProvider("modal", providers.ModalSandbox);
 
-export { Sandbox };
+export { Sandbox, CreateSandboxOptions, RunCommandOptions } from "./sandbox.js";
 export { buildTemplate } from "./template-builder/index.js";
+export { providers };
