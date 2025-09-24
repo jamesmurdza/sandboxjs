@@ -1,6 +1,6 @@
 import * as E2B from "@e2b/code-interpreter";
 import { readFile, writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { Sandbox, FileEntry, Terminal, CreateSandboxOptions, RunCommandOptions } from "../sandbox.js";
 import { randomUUID } from "crypto";
 import { findDockerfileName, parseDockerfile, executeCommand, pathExists } from '../template-builder/utils.js';
@@ -34,18 +34,19 @@ export class E2BSandbox extends Sandbox {
       onLogs?: (chunk: string) => void;
     }
   ): Promise<void> {
+    directory = resolve(directory);
+    const dockerfileName = await findDockerfileName(directory);
+    const dockerfilePath = join(directory, dockerfileName);
+
     if (!options?.teamId && !(await pathExists(join(directory, 'e2b.toml')))) {
       throw new Error('e2b.toml configuration file not found. Team ID is required in options to build E2B template.');
     }
-
-    const dockerfileName = await findDockerfileName(directory);
-    const dockerfilePath = join(directory, dockerfileName);
     
-    const tempDockerfileName = `${randomUUID()}.Dockerfile`
+    const tempDockerfileName = `Dockerfile.${randomUUID()}`
     const tempDockerfilePath = join(directory, tempDockerfileName)
-    const dockerfile = parseDockerfile(await readFile(dockerfilePath, 'utf-8'));
     
     try {
+      const dockerfile = parseDockerfile(await readFile(dockerfilePath, 'utf-8'));
       await writeFile(tempDockerfilePath, dockerfile.content);
       
       const args = [

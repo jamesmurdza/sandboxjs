@@ -83,7 +83,7 @@ export async function executeCommand(
     }
     
     process.on('error', (error) => {
-      reject(new Error(`Failed to start command '${command}': ${error.message}`));
+      reject(new Error(`Failed to start command '${command} ${args.join(' ')}': ${error.message}`));
     });
     
     process.on('close', (code) => {

@@ -56,16 +56,25 @@ export class DaytonaSandbox extends Sandbox {
     // it still uses default "Dockerfile" if available.
     // To resolve this, we will restore original content once build is completed.
     const tempDockerfilePath = join(directory, 'Dockerfile');
-    const dockerfile = parseDockerfile(originalContent);
     
+    const daytona = new Daytona.Daytona();
     try {
+      // Daytona does not allow re-creating snapshot with same name
+      // So we will delete it first if it exists
+      const existingSnapshot = await daytona.snapshot.get(name);
+      await daytona.snapshot.delete(existingSnapshot);
+    } catch (e) {
+      // Snapshot doesn't exist, which is fine
+    }
+
+    try {
+      const dockerfile = parseDockerfile(originalContent);
       let content = dockerfile.content
       if (dockerfile.entrypoint) {
         content += `\nENTRYPOINT ${dockerfile.entrypoint}\n`
       }
       await writeFile(tempDockerfilePath, content);
 
-      const daytona = new Daytona.Daytona();
       await daytona.snapshot.create(
         {
           name,
