@@ -89,8 +89,8 @@ export class BeamSandbox extends Sandbox {
     } else {
       const process = await instance.exec(cmd, ...args);
       const exitCode = await process.wait();
-      const stdout = process.stdout.read();
-      const stderr = process.stderr.read();
+      const stdout = await process.stdout.readAll();
+      const stderr = await process.stderr.readAll();
       return {
         exitCode: exitCode || 0, // Assuming 0 if not explicitly returned
         output: stdout + stderr,
