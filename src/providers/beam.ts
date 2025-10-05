@@ -76,18 +76,10 @@ export class BeamSandbox extends Sandbox {
     command: string,
     options?: RunCommandOptions & { background?: boolean }
   ): Promise<{ exitCode: number; output: string } | { pid: number }> {
-    // This needs to be updated to handle quotes and other shell features.
-    // For now, we just split the command into parts and execute it.
-    const instance = this.ensureConnected();
-    const parts = command.split(" ");
-    const cmd = parts[0];
-    const args = parts.slice(1);
-
+    const process = await this.ensureConnected().exec("sh", "-c", command);
     if (options?.background) {
-      const process = await instance.exec(cmd, ...args);
       return { pid: process.pid || -1 };
     } else {
-      const process = await instance.exec(cmd, ...args);
       const exitCode = await process.wait();
       const stdout = await process.stdout.readAll();
       const stderr = await process.stderr.readAll();
