@@ -174,16 +174,11 @@ export class BeamSandbox extends Sandbox {
   }
 
   async moveFile(path: string, newPath: string): Promise<void> {
-    // Beam SDK doesn't have a direct move/rename file method.
-    // For simplicity, let's execute a shell command for now.
-    // (This is bad because the paths are not sanitized in any way.)
-    await this.runCommand(`mv ${path} ${newPath}`);
+    await this.ensureConnected().exec("mv", path, newPath);
   }
 
   async createDirectory(path: string): Promise<void> {
-    // Beam SDK doesn't have a direct create directory method.
-    // (This is bad because the paths are not sanitized in any way.)
-    await this.runCommand(`mkdir -p ${path}`);
+    await this.ensureConnected().exec("mkdir", "-p", path);
   }
 
   async getPreviewUrl(port: number): Promise<string> {
