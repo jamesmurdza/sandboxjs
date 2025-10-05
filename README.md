@@ -13,7 +13,9 @@ import { Sandbox } from "@gitwit/sandbox";
 const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
 
 // Create a sandbox with custom template
-const customSandbox = await Sandbox.create("e2b", { template: "my-template-id" });
+const customSandbox = await Sandbox.create("e2b", {
+  template: "my-template-id",
+});
 
 // Connect to an existing sandbox
 // const sandbox = await Sandbox.connect("daytona", "sandbox_id");
@@ -32,11 +34,11 @@ await sandbox.destroy();
 ## Provider Support
 
 | Provider        | File Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Directory Watch | Preview URLs | Pseudo-terminals | Env Variables | Destroy Sandbox | Build Templates |
-| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | --------------- | --------------- | --------------- |
-| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅              | ✅              | ✅              |
-| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅              | ✅              | ✅              |
-| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌              | ❌              | 🚧              |
-| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌              | ✅              | 🚧              |
+| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | ------------- | --------------- | --------------- |
+| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅            | ✅              | ✅              |
+| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | ✅              |
+| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌            | ❌              | 🚧              |
+| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌            | ✅              | 🚧              |
 
 ## Getting Started
 
@@ -97,7 +99,7 @@ const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or
 // Create sandbox with additional parameters
 const e2bSandbox = await Sandbox.create("e2b", {
   template: "my-template-id",
-  envs: { KEY: "value" }
+  envs: { KEY: "value" },
 });
 ```
 
@@ -121,7 +123,7 @@ console.log(exitCode); // 0
 const result = await sandbox.runCommand("ls -la", {
   cwd: "/tmp",
   envs: { MY_VAR: "value" },
-  timeoutMs: 5000
+  timeoutMs: 5000,
 });
 
 // Background command execution
@@ -210,31 +212,33 @@ Build custom templates from your projects in a unified way across all providers.
 > **Note:** Your project directory must contain a `Dockerfile` (or `*.Dockerfile` file).
 
 ### Build E2B template
+
 ```ts
 import { buildTemplate } from "@gitwit/sandbox";
 
-await buildTemplate('e2b', './my-project', 'my-template', {
+await buildTemplate("e2b", "./my-project", "my-template", {
   cpuCount: 2,
   memoryMB: 1024,
-  teamId: 'your-team-id'
+  teamId: "your-team-id",
 });
 
 // Use built template
-const sandbox = await Sandbox.create('e2b', { template: 'my-template' });
+const sandbox = await Sandbox.create("e2b", { template: "my-template" });
 ```
 
 ### Build Daytona snapshot
+
 ```ts
 import { buildTemplate } from "@gitwit/sandbox";
 
-await buildTemplate('daytona', './my-project', 'my-snapshot', {
+await buildTemplate("daytona", "./my-project", "my-snapshot", {
   cpu: 2,
   memory: 4,
-  disk: 10
+  disk: 10,
 });
 
 // Use built template
-const sandbox = await Sandbox.create('daytona', { template: 'my-snapshot' });
+const sandbox = await Sandbox.create("daytona", { template: "my-snapshot" });
 ```
 
 ## Future Plans
