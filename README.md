@@ -10,7 +10,7 @@ A unified interface for Linux-based cloud sandbox providers. It can be used to c
 import { Sandbox } from "@gitwit/sandbox";
 
 // Create a new sandbox
-const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
+const sandbox = await Sandbox.create("daytona"); // or "e2b" or "beam" or "codesandbox" or "modal"
 
 // Create a sandbox with custom template
 const customSandbox = await Sandbox.create("e2b", {
@@ -37,6 +37,7 @@ await sandbox.destroy();
 | --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | ------------- | --------------- | --------------- |
 | **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅            | ✅              | ✅              |
 | **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | ✅              |
+| **Beam**        | ✅               | 🚧                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | 🚧              |
 | **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌            | ❌              | 🚧              |
 | **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌            | ✅              | 🚧              |
 
@@ -51,6 +52,9 @@ Create a `.env` file in the root directory of the project and add at least one o
 E2B_API_KEY=
 # Get a Daytona API key here: https://app.daytona.io/dashboard/keys
 DAYTONA_API_KEY=
+# Get a Beam API token here: https://platform.beam.cloud/settings/api-keys
+BEAM_WORKSPACE_ID=
+BEAM_TOKEN=
 # Get a CodeSandbox API key here: https://codesandbox.io/t
 CODESANDBOX_API_KEY=
 # Get a Modal API token here: https://modal.com/settings/tokens
