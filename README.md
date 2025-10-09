@@ -10,10 +10,12 @@ A unified interface for Linux-based cloud sandbox providers. It can be used to c
 import { Sandbox } from "@gitwit/sandbox";
 
 // Create a new sandbox
-const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or "modal"
+const sandbox = await Sandbox.create("daytona"); // or "e2b" or "beam" or "codesandbox" or "modal"
 
 // Create a sandbox with custom template
-const customSandbox = await Sandbox.create("e2b", { template: "my-template-id" });
+const customSandbox = await Sandbox.create("e2b", {
+  template: "my-template-id",
+});
 
 // Connect to an existing sandbox
 // const sandbox = await Sandbox.connect("daytona", "sandbox_id");
@@ -32,11 +34,12 @@ await sandbox.destroy();
 ## Provider Support
 
 | Provider        | File Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Directory Watch | Preview URLs | Pseudo-terminals | Env Variables | Destroy Sandbox | Build Templates |
-| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | --------------- | --------------- | --------------- |
-| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅              | ✅              | ✅              |
-| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅              | ✅              | ✅              |
-| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌              | ❌              | 🚧              |
-| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌              | ✅              | 🚧              |
+| --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | ------------- | --------------- | --------------- |
+| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅            | ✅              | ✅              |
+| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | ✅              |
+| **Beam**        | ✅               | ✅                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | 🚧              |
+| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌            | ❌              | 🚧              |
+| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌            | ✅              | 🚧              |
 
 ## Getting Started
 
@@ -49,6 +52,9 @@ Create a `.env` file in the root directory of the project and add at least one o
 E2B_API_KEY=
 # Get a Daytona API key here: https://app.daytona.io/dashboard/keys
 DAYTONA_API_KEY=
+# Get a Beam API token here: https://platform.beam.cloud/settings/api-keys
+BEAM_WORKSPACE_ID=
+BEAM_TOKEN=
 # Get a CodeSandbox API key here: https://codesandbox.io/t
 CODESANDBOX_API_KEY=
 # Get a Modal API token here: https://modal.com/settings/tokens
@@ -97,7 +103,7 @@ const sandbox = await Sandbox.create("daytona"); // or "codesandbox" or "e2b" or
 // Create sandbox with additional parameters
 const e2bSandbox = await Sandbox.create("e2b", {
   template: "my-template-id",
-  envs: { KEY: "value" }
+  envs: { KEY: "value" },
 });
 ```
 
@@ -121,7 +127,7 @@ console.log(exitCode); // 0
 const result = await sandbox.runCommand("ls -la", {
   cwd: "/tmp",
   envs: { MY_VAR: "value" },
-  timeoutMs: 5000
+  timeoutMs: 5000,
 });
 
 // Background command execution
@@ -210,31 +216,33 @@ Build custom templates from your projects in a unified way across all providers.
 > **Note:** Your project directory must contain a `Dockerfile` (or `*.Dockerfile` file).
 
 ### Build E2B template
+
 ```ts
 import { buildTemplate } from "@gitwit/sandbox";
 
-await buildTemplate('e2b', './my-project', 'my-template', {
+await buildTemplate("e2b", "./my-project", "my-template", {
   cpuCount: 2,
   memoryMB: 1024,
-  teamId: 'your-team-id'
+  teamId: "your-team-id",
 });
 
 // Use built template
-const sandbox = await Sandbox.create('e2b', { template: 'my-template' });
+const sandbox = await Sandbox.create("e2b", { template: "my-template" });
 ```
 
 ### Build Daytona snapshot
+
 ```ts
 import { buildTemplate } from "@gitwit/sandbox";
 
-await buildTemplate('daytona', './my-project', 'my-snapshot', {
+await buildTemplate("daytona", "./my-project", "my-snapshot", {
   cpu: 2,
   memory: 4,
-  disk: 10
+  disk: 10,
 });
 
 // Use built template
-const sandbox = await Sandbox.create('daytona', { template: 'my-snapshot' });
+const sandbox = await Sandbox.create("daytona", { template: "my-snapshot" });
 ```
 
 ## Future Plans
