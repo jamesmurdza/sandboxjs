@@ -35,11 +35,11 @@ await sandbox.destroy();
 
 | Provider        | File Persistence | Memory Persistence | Read/Write Files | Recursive Delete | Directory Watch | Preview URLs | Pseudo-terminals | Env Variables | Destroy Sandbox | Build Templates |
 | --------------- | ---------------- | ------------------ | ---------------- | ---------------- | --------------- | ------------ | ---------------- | ------------- | --------------- | --------------- |
-| **E2B**         | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅            | ✅              | ✅              |
-| **Daytona**     | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | ✅              |
-| **Beam**        | ✅               | ✅                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | 🚧              |
-| **CodeSandbox** | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌            | ❌              | 🚧              |
-| **Modal**       | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌            | ✅              | 🚧              |
+| [**E2B**](https://e2b.dev/docs)                    | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ✅            | ✅              | ✅              |
+| [**Daytona**](https://www.daytona.io/docs/)        | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | ✅              |
+| [**Beam**](https://docs.beam.cloud/v2/)            | ✅               | ✅                 | ✅               | ❌               | ❌              | ✅           | ❌               | ✅            | ✅              | 🚧              |
+| [**CodeSandbox**](https://codesandbox.io/docs/sdk) | ✅               | ✅                 | ✅               | ✅               | ✅              | ✅           | ✅               | ❌            | ❌              | 🚧              |
+| [**Modal**](https://modal.com/docs/guide/sandbox)  | ✅               | ❌                 | ✅               | ❌               | ❌              | ✅           | ❌               | ❌            | ✅              | 🚧              |
 
 ## Getting Started
 
