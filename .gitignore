@@ -19,3 +19,4 @@ build/
 # OS
 .DS_Store
 npm-debug.log*
+/.beamignore
